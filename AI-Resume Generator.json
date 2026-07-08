@@ -1,0 +1,554 @@
+{
+  "name": "AI-Resume Generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "7995e70d-032a-4310-934a-156bbcc622fe",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "abbc88ff-6f27-4175-9a7b-e15dd925a127",
+              "name": "LinkedIn Search URL",
+              "value": "https://www.linkedin.com/jobs/search/?currentJobId=4436227108&distance=25.0&f_E=2&geoId=102713980&keywords=data%20analyst&origin=JOBS_HOME_KEYWORD_HISTORY",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        0
+      ],
+      "id": "6227f8fa-00c0-4afa-9748-b556b375a834",
+      "name": "Job Search URL"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "2rJKkhh7vjpX7pvjg",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Jobs Scraper | Remove Duplicate Jobs | Pay Per Result (cheap_scraper/linkedin-job-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/2rJKkhh7vjpX7pvjg/input"
+        },
+        "customBody": "{\n  \"startUrls\": [\n    {\n      \"url\": \"https://www.linkedin.com/jobs/search/?keywords=data%20analyst\"\n    }\n  ],\n  \"maxJobs\": 1\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        16,
+        0
+      ],
+      "id": "7ac01ff8-7774-4190-b665-1d01631db798",
+      "name": "Scrape Jobs",
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "NzLjjtBu58DpFprb",
+          "name": "Samruddhi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1smJyI7IVqIkPx3J6FnO-6U0KxQs1ZlzKT7PlQS4lJcM/edit?pli=1&tab=t.0"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        432,
+        0
+      ],
+      "id": "7407caf7-e45c-43ca-a5c4-80776d70250e",
+      "name": "Get a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "0Fx3DXylhenyL8qf",
+          "name": "Samruddhi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c7627ff4-bdde-4b1f-ad6f-17124315dfeb",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "GPT-5"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a helpful, intelligent job filtering assisstant"
+            },
+            {
+              "content": "=##Overview\n\nI'm looking for jobs. Your task is to filter them based on a list of attributions and skills that I have. Some jobs may not be relevant, which is why I want you to go through each one of them and let me know whether or not I'm an OKAY fit.\n\n##Context\n\nBelow is my resume\n\n{{ $json.content }}\n\n##Job description.\n\n{{ $('Scrape Jobs').item.json.jobDescription }}\n\nRespond in this JSON format:\n\n{\"verdict\":\"true or false\", \"reasonForVerdict\"}\n\nIf I'm a fit return true\nIf I'm not a fit return false"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        640,
+        0
+      ],
+      "id": "e765e12e-7d6a-455c-a995-d20eb3128c69",
+      "name": "Checks Relevance",
+      "credentials": {
+        "openAiApi": {
+          "id": "SpXo15TwlwpjGET8",
+          "name": "Samruddhi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "GPT-5"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a helpful, intelligent resume and cover letter writing assistant that creates high-converting, ATS-optimized job application documents based on a candidate's resume and a job description.\n\nYour tasks are:\n1. Tailor and optimize the provided resume for the job description.\n2. Write a professional, customized cover letter for the same job.\n\nRequirements:\n- Match the job description as closely as possible using relevant keywords.\n- Improve wording and presentation while keeping all information truthful.\n- Do not invent experience, skills, education, certifications, or achievements.\n- Optimize for ATS (Applicant Tracking Systems).\n- Use professional formatting and language.\n- Output both the resume and cover letter in a single HTML document.\n\nThis output will be added to a Google Doc, so write it in clean HTML format that can be easily copied and pasted.\n\nOutput ONLY valid HTML.\nDo not output markdown.\nDo not output any backticks (no `).\nDo not include explanations or notes.\n\nThe first characters of your response must be:\n\n<html>\n\nUse the following structure:\n\n<html>\n<body>\n\n<h1>Resume</h1>\n<!-- Tailored Resume -->\n\n<hr>\n\n<h1>Cover Letter</h1>\n<!-- Customized Cover Letter -->\n\n</body>\n</html>"
+            },
+            {
+              "content": "=#Overview\n\nI'm looking for jobs. Your task is to customize my resume and create a tailored cover letter based on the provided job description.\n\nHere is the job description:\n\n{{ $('Scrape Jobs').item.json.jobDescription }}\n\n--\n\nHere is my resume:\n\n{{ $('Get a document').item.json.content }}\n\n--\n\nInstructions:\n\n1. Rewrite and optimize the resume specifically for this job.\n2. Create a professional cover letter tailored to the same job.\n3. Incorporate relevant keywords from the job description to improve ATS compatibility.\n4. Keep all information truthful and based only on the information provided in the resume.\n5. Do not invent experience, skills, education, certifications, or achievements.\n6. Use professional formatting and language.\n\nRespond with only a single valid HTML document.\n\nStructure the output as:\n\n<html>\n<body>\n\n<h1>Resume</h1>\n<!-- Customized Resume -->\n\n<hr>\n\n<h1>Cover Letter</h1>\n<!-- Customized Cover Letter -->\n\n</body>\n</html>\n\nThis document will be added directly to a Google Doc, so write clean HTML that can be easily copied and pasted.\n\nDo not output markdown.\nDo not output backticks.\nDo not output explanations, notes, or any text outside the HTML document.\n\nThe first characters of your response must be:\n\n<html>"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        992,
+        0
+      ],
+      "id": "7ec9eee5-f345-45ff-81ef-31be22a4d667",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "SpXo15TwlwpjGET8",
+          "name": "Samruddhi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "=CV-Samruddhi  {{ $('Scrape Jobs').item.json.companyName }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "232905da-cc17-42d0-9774-94b44b1c0979",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "0Fx3DXylhenyL8qf",
+          "name": "Samruddhi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1QhafHCSusuKBJwXpaxnXJfUYfJh0Jy3V5vDyVDqcgWU",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QhafHCSusuKBJwXpaxnXJfUYfJh0Jy3V5vDyVDqcgWU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QhafHCSusuKBJwXpaxnXJfUYfJh0Jy3V5vDyVDqcgWU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job Post Link": "={{ $('Scrape Jobs').item.json.jobUrl }}",
+            "Job Title": "={{ $('Scrape Jobs').item.json.jobTitle }}",
+            "Posted At ": "={{ $('Scrape Jobs').item.json.publishedAt }}",
+            "Company Name": "={{ $('Scrape Jobs').item.json.companyName }}",
+            "Company Website ": "={{ $('Scrape Jobs').item.json.companyUrl }}",
+            "Salary ": "={{ $('Scrape Jobs').item.json.salaryInfo }}",
+            "Description": "={{ $('Scrape Jobs').item.json.jobDescription }}",
+            "Applicants": "={{ $('Scrape Jobs').item.json.applicationsCount }}",
+            "Application Link": "={{ $('Scrape Jobs').item.json.applyUrl }}",
+            "Status": "To do ",
+            "Seniority Level": "={{ $('Scrape Jobs').item.json.yearsOfExperience }}",
+            "Resume URL": "={{ 'https://docs.google.com/document/d/' + $('Create a document').item.json.id + '/edit' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Job Post Link",
+              "displayName": "Job Post Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Seniority Level",
+              "displayName": "Seniority Level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Posted At ",
+              "displayName": "Posted At ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Website ",
+              "displayName": "Company Website ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Salary ",
+              "displayName": "Salary ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicants",
+              "displayName": "Applicants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume URL",
+              "displayName": "Resume URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Application Link",
+              "displayName": "Application Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2224,
+        0
+      ],
+      "id": "4ec5d44f-9393-4f85-850c-6077a071446a",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "59Z8gg84wSQdy4T9",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{$('Create a document').item.json.id}}:batchUpdate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  requests: [\n    {\n      insertText: {\n        location: {\n          index: 1\n        },\n        text: $json.text\n      }\n    }\n  ]\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1776,
+        0
+      ],
+      "id": "38d6a28a-8bab-46b9-85c1-01e6daaf6d55",
+      "name": "HTTP Request",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "Vw9Db97Sm5J4mcGf",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map((item, index) => {\n\n  let html = $('Message a model').all()[index].json.output[0].content[0].text;\n\n  const text = html\n    .replace(/<br\\s*\\/?>/gi, '\\n')\n    .replace(/<\\/p>/gi, '\\n\\n')\n    .replace(/<\\/h1>/gi, '\\n\\n')\n    .replace(/<\\/h2>/gi, '\\n\\n')\n    .replace(/<\\/h3>/gi, '\\n\\n')\n    .replace(/<\\/li>/gi, '\\n')\n    .replace(/<li>/gi, '• ')\n    .replace(/<[^>]*>/g, '')\n    .replace(/&nbsp;/g, ' ')\n    .trim();\n\n  return {\n    json: {\n      text\n    }\n  };\n\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "8a2352ea-c5e8-41e3-b86b-2eadfadd5293",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n\n  const desc = item.json.description || '';\n\n  function extractSection(text, start, end = null) {\n    const regex = end\n      ? new RegExp(`${start}[\\\\s\\\\S]*?(?=${end})`, 'i')\n      : new RegExp(`${start}[\\\\s\\\\S]*`, 'i');\n\n    const match = text.match(regex);\n    return match ? match[0].trim() : '';\n  }\n\n  const shortDescription = desc\n    .replace(/\\n+/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim()\n    .substring(0, 200);\n\n  const summary = desc\n    .split('\\n')\n    .slice(0, 3)\n    .join(' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n\n  const responsibilities = extractSection(\n    desc,\n    \"What You.ll Do|Responsibilities\",\n    \"What We.re Looking For|Requirements\"\n  );\n\n  const requirements = extractSection(\n    desc,\n    \"What We.re Looking For|Requirements\",\n    \"Why This Role|Benefits\"\n  );\n\n  const benefits = extractSection(\n    desc,\n    \"Why This Role|Benefits\"\n  );\n\n  return {\n    json: {\n      ...item.json,\n      description: shortDescription,\n      JobSummary: summary,\n      Responsibilities: responsibilities,\n      Requirements: requirements,\n      Benefits: benefits\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        0
+      ],
+      "id": "8378ace3-abba-4d95-9444-7a0313c3d485",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Job Search URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Search URL": {
+      "main": [
+        [
+          {
+            "node": "Scrape Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Jobs": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "Checks Relevance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checks Relevance": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b8c2e3cb-c958-4a4a-9396-c2b771a95361",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf037ecc4d0a06ba995fa48ed043e6b23ba4bb539e6b71abd7124c6a5ea10ec7"
+  },
+  "nodeGroups": [],
+  "id": "O0Ypr1VoKyzt5NqX",
+  "tags": []
+}
