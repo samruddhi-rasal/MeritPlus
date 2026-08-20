@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/jobs/[...path].js": {
+      "maxDuration": 60
+    },
+    "api/auth/[...path].js": {
+      "maxDuration": 10
+    },
+    "api/history/[...path].js": {
+      "maxDuration": 30
+    }
+  }
+}

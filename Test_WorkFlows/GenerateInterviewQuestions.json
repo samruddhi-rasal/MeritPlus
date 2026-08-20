@@ -1,0 +1,191 @@
+{
+  "name": "Generate Interview Questions",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generateInterviewQuestions",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "e50fef56-ba15-4667-af96-fb72e8e09668",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        0
+      ],
+      "webhookId": "generate-interview-questions"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "resumeContent",
+              "value": "={{ $json.body.resumeContent }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "jobDescription",
+              "value": "={{ $json.body.jobDescription }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "jobTitle",
+              "value": "={{ $json.body.jobTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "4",
+              "name": "companyName",
+              "value": "={{ $json.body.companyName }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "43998941-61c1-4140-9ac5-192269b348b1",
+      "name": "Take Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI response\nconst aiText = $json.content?.[0]?.text || \"\";\n\n// Remove markdown code fences if the AI added them\nlet cleaned = aiText\n  .replace(/```json\\s*/gi, \"\")\n  .replace(/```\\s*/g, \"\")\n  .trim();\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (error) {\n  return [\n    {\n      json: {\n        success: false,\n        jobTitle: $(\"Take Input\").first().json.jobTitle,\n        companyName: $(\"Take Input\").first().json.companyName,\n        questions: [],\n        error: \"Could not parse AI response\",\n        raw: aiText\n      }\n    }\n  ];\n}\n\nconst input = $(\"Take Input\").first().json;\n\nreturn [\n  {\n    json: {\n      success: true,\n      jobTitle: input.jobTitle,\n      companyName: input.companyName,\n      questions: parsed.questions || []\n    }\n  }\n];"
+      },
+      "id": "0eb43e8a-cd2e-4145-acfa-9557d2604286",
+      "name": "Normalize Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-opus-4-8",
+          "mode": "list",
+          "cachedResultName": "claude-opus-4-8"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert technical interviewer and career coach. Given a candidate's resume and a specific job description, generate realistic interview questions this candidate is likely to be asked for that role. Base the questions on the actual overlaps and gaps between the resume and the job description — do not produce generic filler.\n\nReturn ONLY valid JSON, with no markdown code fences and no commentary, in exactly this shape:\n{\"questions\":[{\"category\":\"Behavioral\",\"question\":\"...\"},{\"category\":\"Technical\",\"question\":\"...\"},{\"category\":\"Role-Specific\",\"question\":\"...\"}]}\n\nInclude exactly 3 Behavioral, 4 Technical, and 3 Role-Specific questions (10 total)."
+            },
+            {
+              "content": "=Job Title: {{ $json.jobTitle }}\nCompany: {{ $json.companyName }}\n\nJob Description:\n{{ $json.jobDescription }}\n\nCandidate Resume:\n{{ $json.resumeContent }}\n\nGenerate the interview questions now, following the JSON format specified."
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 30000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        352,
+        0
+      ],
+      "id": "e3d9ee2c-0370-49e2-83f1-0e0733d3ab2d",
+      "name": "INTERVIEWQUESTIONS",
+      "credentials": {
+        "anthropicApi": {
+          "id": "glWJEsqND6ynRPCO",
+          "name": "HemantSir"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  success: $json.success,\n  jobTitle: $json.jobTitle,\n  companyName: $json.companyName,\n  questions: $json.questions\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        0
+      ],
+      "id": "bb0b049d-f60d-4789-9a30-1642a45af417",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Take Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Output": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Take Input": {
+      "main": [
+        [
+          {
+            "node": "INTERVIEWQUESTIONS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INTERVIEWQUESTIONS": {
+      "main": [
+        [
+          {
+            "node": "Normalize Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e6daa8af-4aa1-4d43-96b4-3ca3bbfa7614",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bd8bfc9bd47585f5275eea5fadc8075f58fdc2669ad1324b1cb307656e895cca"
+  },
+  "nodeGroups": [],
+  "id": "1h9WIWvoL6zcj57p",
+  "tags": []
+}

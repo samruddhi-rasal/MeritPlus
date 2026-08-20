@@ -1,0 +1,353 @@
+{
+  "name": "07/08_searchJobs",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3eb4c2cb-0c52-429a-b0ef-07c05dae3c52",
+              "name": "body.jobTitle",
+              "value": "={{ $json.body.jobTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "122f7d65-795b-40e0-9e9a-614846598b15",
+              "name": "body.resume",
+              "value": "={{ $json.body.resumeContent }}",
+              "type": "string"
+            },
+            {
+              "id": "271cc7ec-548b-4c29-b2a2-f33a3315e8dc",
+              "name": "resume",
+              "value": "={{ 'resume' }}",
+              "type": "binary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        -32
+      ],
+      "id": "77999c23-4da4-4f44-b7e9-f07a8a1a3c45",
+      "name": "Job Search URL",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "searchJobs",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -752,
+        176
+      ],
+      "id": "3205745b-01aa-4c13-b8e6-b2e65211b279",
+      "name": "Webhook",
+      "webhookId": "ec8efcec-c24e-4f17-9d89-5ad69002ed29",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.jobSource }}",
+                    "rightValue": "linkedin",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c1d7c49b-45c8-45a3-9110-f53e8a09bfb3"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c5ea4b5b-f073-43a2-bd76-e1afed887d22",
+                    "leftValue": "={{ $('Webhook').item.json.body.jobSource }}",
+                    "rightValue": "indeed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -288,
+        176
+      ],
+      "id": "67784759-0dd9-40c3-bebd-fc7b312b3424",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "JkfTWxtpgfvcRQn3p",
+          "mode": "list",
+          "cachedResultName": "⚡️Rapid Linkedin Jobs Scraper (worldunboxer/rapid-linkedin-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/JkfTWxtpgfvcRQn3p/input"
+        },
+        "customBody": "={\n    \"easy_apply\": false,\n    \"employment_type\": \"Full-time\",\n    \"jobs_entries\": {{ $('Webhook').item.json.body.NoOfJobs }},\n    \"jobs_titles\": [\n        \"{{ $('Webhook').item.json.body.jobTitle }}\"\n    ],\n    \"location\": \"{{ $('Webhook').item.json.body.location }}\",\n    \"posted_within\": \"Past 24 hours\",\n    \"work_arrangement\": \"Hybrid\"\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "302017dd-140b-4d7e-8cea-d7cc3ce617d0",
+      "name": "LinkedIn Job",
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "naQ8nSf26B9E4s9O",
+          "name": "Hemant"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "BIeK7ZcYUrdxDgOEQ",
+          "mode": "list",
+          "cachedResultName": "Indeed Jobs Scraper - Most Comprehensive (kaix/indeed-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/BIeK7ZcYUrdxDgOEQ/input"
+        },
+        "customBody": "={\n  \"keyword\": \"{{ $('Webhook').item.json.body.jobTitle }}\",\n  \"location\": \"{{ $('Webhook').item.json.body.location }}\",\n  \"maxItems\": {{ Number($('Webhook').item.json.body.NoOfJobs) }},\n  \"jobType\": \"{{ $('Webhook').item.json.body.jobType }}\",\n  \"remote\": \"{{ $('Webhook').item.json.body.workPlace }}\",\n  \"fromDays\": \"1\",\n  \"radius\": \"50\",\n  \"sort\": \"date\",\n  \"searchMode\": \"rich\"\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        0,
+        352
+      ],
+      "id": "24927760-4e12-4ec7-893f-d4c6220b5fb0",
+      "name": "Indeed Job",
+      "alwaysOutputData": true,
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "naQ8nSf26B9E4s9O",
+          "name": "Hemant"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.companies }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        160
+      ],
+      "id": "2f5445b4-5de1-499c-82f8-b4c4e6a6cd1b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming company/job items\nconst items = $input.all();\n\n// Build a clean array of companies/jobs\nconst companies = items.map(item => {\n  const j = item.json;\n\n  return {\n    job_id: j.job_id || \"\",\n    job_url: j.job_url || \"\",\n    job_title: j.job_title || \"\",\n    company_name: j.company_name || \"\",\n    company_url: j.company_url || \"\",\n    location: j.location || \"\",\n    seniority_level: j.seniority_level || \"\",\n    employment_type: j.employment_type || \"\",\n    time_posted: j.time_posted || \"\",\n    num_applicants: j.num_applicants || \"\",\n    salary_range: j.salary_range || null,\n    job_description: j.job_description || \"\",\n    easy_apply: j.easy_apply ?? false,\n    apply_url: j.apply_url || \"\",\n    resumeContent:$('Webhook').first().json.body.resumeContent\n  };\n});\n\n// Return ONE n8n item containing the full array\nreturn [\n  {\n    json: {\n      companies: companies,\n      count: companies.length\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "8ecd4278-7ba9-4fe4-963e-fb0d093b6e6b",
+      "name": "Build LinkedIn Company Array"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming company/job items\nconst items = $input.all();\n\n// Build a clean array of companies/jobs\nconst companies = items.map(item => {\n  const j = item.json;\n\n  return {\n    job_id:\n      j.id ||\n      j.job_id ||\n      \"\",\n\n    job_url:\n      j.urls?.indeed ||\n      j.urls?.external ||\n      j.job_url ||\n      \"\",\n\n    job_title:\n      j.title?.text ||\n      j.job_title ||\n      \"\",\n\n    company_name:\n      j.company?.name ||\n      j.company?.displayName ||\n      j.companyName ||\n      j.company_name ||\n      \"\",\n\n    company_url:\n      j.company?.url ||\n      j.company?.companyUrl ||\n      j.company_url ||\n      \"\",\n\n    location:\n      j.location?.formatted ||\n      j.location?.formattedShort ||\n      j.location?.fullAddress ||\n      j.location ||\n      \"\",\n\n    seniority_level:\n      j.seniorityLevel ||\n      j.seniority_level ||\n      \"\",\n\n    employment_type:\n      j.jobType ||\n      j.employmentType ||\n      j.employment_type ||\n      \"\",\n\n    time_posted:\n      j.datePosted ||\n      j.postedAt ||\n      j.relativeTime ||\n      j.time_posted ||\n      \"\",\n\n    num_applicants:\n      j.numApplicants ||\n      j.num_applicants ||\n      \"\",\n\n    salary_range:\n      j.salary ||\n      j.salaryRange ||\n      j.salary_range ||\n      null,\n\n    job_description:\n      j.description?.text ||\n      j.job_description ||\n      \"\",\n\n    easy_apply:\n      j.easyApply ??\n      j.easy_apply ??\n      false,\n\n    apply_url:\n      j.urls?.apply ||\n      j.urls?.external ||\n      j.apply_url ||\n      \"\",\n\n    resumeContent:\n      $('Webhook').first().json.body.resumeContent\n  };\n});\n\n// Return ONE n8n item containing the full array\nreturn [\n  {\n    json: {\n      companies: companies,\n      count: companies.length\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        352
+      ],
+      "id": "bd2f6bf4-a889-4d9c-98b8-4aee1304fcdd",
+      "name": "Build Indeed Company Array"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body;\n\nconst jobTypeBySource = {\n  indeed: {\n    fulltime: \"fulltime\",\n    parttime: \"parttime\",\n    contract: \"contract\",\n    temporary: \"temporary\",\n    internship: \"internship\",\n    location: \"location\"\n  },\n  linkedin: {\n    fulltime: \"FULLTIME\",\n    parttime: \"PART_TIME\",\n    contract: \"CONTRACT\",\n    temporary: \"TEMPORARY\",\n    internship: \"INTERNSHIP\",\n    location: \"LOCATION\"\n  }\n};\n\nconst workPlaceBySource = {\n  indeed: {\n    hybrid: \"hybrid\",\n    remote: \"remote\"\n  },\n  linkedin: {\n    hybrid: \"HYBRID\",\n    remote: \"REMOTE\"\n  }\n};\n\nconst source = (body.jobSource || \"\").toLowerCase();\nconst rawJobType = (body.jobType || \"\").toLowerCase();\nconst rawWorkPlace = (body.workPlace || \"\").toLowerCase();\n\nconst mappedJobType = jobTypeBySource[source]?.[rawJobType] ?? body.jobType;\nconst mappedWorkPlace = workPlaceBySource[source]?.[rawWorkPlace] ?? body.workPlace;\n\nconst titles = (body.jobTitle || \"\")\n  .split(\",\")\n  .map(t => t.trim())\n  .filter(Boolean);\n\nreturn titles.map(title => ({\n  json: {\n    ...body,\n    jobTitle: title,\n    jobType: mappedJobType,\n    workPlace: mappedWorkPlace\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        176
+      ],
+      "id": "276ba152-bf72-4a77-a49c-e889df31b9eb",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Job Search URL": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Indeed Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Job": {
+      "main": [
+        [
+          {
+            "node": "Build LinkedIn Company Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indeed Job": {
+      "main": [
+        [
+          {
+            "node": "Build Indeed Company Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Build LinkedIn Company Array": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Indeed Company Array": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "053d11ed-8996-4bbd-8d81-87e9e990ebff",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bd8bfc9bd47585f5275eea5fadc8075f58fdc2669ad1324b1cb307656e895cca"
+  },
+  "nodeGroups": [],
+  "id": "e7OVpDHVFww7rf1o",
+  "tags": []
+}

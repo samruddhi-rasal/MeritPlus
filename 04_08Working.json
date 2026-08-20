@@ -1,0 +1,1969 @@
+{
+  "name": "04/08Working",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3eb4c2cb-0c52-429a-b0ef-07c05dae3c52",
+              "name": "body.jobTitle",
+              "value": "={{ $json.body.jobTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "122f7d65-795b-40e0-9e9a-614846598b15",
+              "name": "body.resume",
+              "value": "={{ $json.body.resumeContent }}",
+              "type": "string"
+            },
+            {
+              "id": "271cc7ec-548b-4c29-b2a2-f33a3315e8dc",
+              "name": "resume",
+              "value": "={{ 'resume' }}",
+              "type": "binary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3168,
+        480
+      ],
+      "id": "86142ea0-0dd1-4497-8dd2-2876ea1500de",
+      "name": "Job Search URL",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "batchSize": 2,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -848,
+        480
+      ],
+      "id": "f0d0a6ba-e3cc-4cb8-a6fe-84b2bafd22e6",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.results }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2272,
+        192
+      ],
+      "id": "dbde435c-64c2-4c23-a3b6-5686f503c122",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1obsx11PZtWTUkw-obn0p4wgLhKx_tryCe_iqqu-lmeY",
+          "mode": "list",
+          "cachedResultName": "workflow logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1obsx11PZtWTUkw-obn0p4wgLhKx_tryCe_iqqu-lmeY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1obsx11PZtWTUkw-obn0p4wgLhKx_tryCe_iqqu-lmeY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.timestamp }}",
+            "status": "={{ $json.status }}",
+            "data": "={{ $json.data }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nodeName",
+              "displayName": "nodeName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1968,
+        480
+      ],
+      "id": "4009e1a0-acc7-4102-8073-520416023384",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6yLsryrn9IjwLT5Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "resume",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3600,
+        496
+      ],
+      "id": "9b47c11d-a84b-4768-804e-49cdf2bf785e",
+      "name": "Webhook",
+      "webhookId": "ec8efcec-c24e-4f17-9d89-5ad69002ed29",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.jobSource }}",
+                    "rightValue": "linkedin",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c1d7c49b-45c8-45a3-9110-f53e8a09bfb3"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c5ea4b5b-f073-43a2-bd76-e1afed887d22",
+                    "leftValue": "={{ $('Webhook').item.json.body.jobSource }}",
+                    "rightValue": "indeed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1728,
+        480
+      ],
+      "id": "0935b589-45ce-4431-9d73-fd9d49cc0c9e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1120,
+        480
+      ],
+      "id": "425efda3-d484-4900-ab07-ccb320af11da",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "JkfTWxtpgfvcRQn3p",
+          "mode": "list",
+          "cachedResultName": "⚡️Rapid Linkedin Jobs Scraper (worldunboxer/rapid-linkedin-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/JkfTWxtpgfvcRQn3p/input"
+        },
+        "customBody": "={\n    \"easy_apply\": false,\n    \"employment_type\": \"Full-time\",\n    \"jobs_entries\": {{ $('Webhook').item.json.body.NoOfJobs }},\n    \"jobs_titles\": [\n        \"{{ $('Webhook').item.json.body.jobTitle }}\"\n    ],\n    \"location\": \"{{ $('Webhook').item.json.body.location }}\",\n    \"posted_within\": \"Past 24 hours\",\n    \"work_arrangement\": \"Hybrid\"\n}",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        288
+      ],
+      "id": "b70357a8-4dc8-4d5e-81ae-224877770dc9",
+      "name": "LinkedIn Job",
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "3wIYMX6oDcjDLLgj",
+          "name": "sanika"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "hf6djGx2wbY3CNyt0",
+          "mode": "list",
+          "cachedResultName": "🔥 Indeed [Only $0.90💰] Jobs Scraper (Search by keywords) (memo23/apify-indeed-cheerio-keywords-ppr)",
+          "cachedResultUrl": "https://console.apify.com/actors/hf6djGx2wbY3CNyt0/input"
+        },
+        "customBody": "={\n  \"country\": \"United States\",\n  \"datePosted\": \"1\",\n  \"enrichEmails\": false,\n  \"expandToCities\": true,\n  \"flattenOutput\": true,\n  \"includeCompanyDetails\": false,\n  \"jobType\": [\"FULLTIME\"],\n  \"location\": \"{{ $('Webhook').item.json.body.location }}\",\n  \"jobs_entries\": 5,\n  \"onlyExternalJobs\": false,\n  \"position\": \"{{ $('Webhook').item.json.body.jobTitle }}\",\n  \"qualifyByPayment\": true,\n  \"radius\": 10,\n  \"remoteWork\": \"{{ $('Webhook').item.json.body.workPlace }}\",\n  \"resolveExternalApplyUrl\": false,\n  \"sort\": \"date\",\n  \"strictMatch\": false,\n  \"uniqueCompanies\": false\n}",
+        "timeout": {},
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        640
+      ],
+      "id": "e9d8a639-7d6d-4622-b310-480bb3f4bec2",
+      "name": "Indeed Job",
+      "credentials": {
+        "apifyOAuth2Api": {
+          "id": "3wIYMX6oDcjDLLgj",
+          "name": "sanika"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.jobSource }}",
+                    "rightValue": "linkedin",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c1d7c49b-45c8-45a3-9110-f53e8a09bfb3"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c5ea4b5b-f073-43a2-bd76-e1afed887d22",
+                    "leftValue": "={{ $('Webhook').item.json.body.jobSource }}",
+                    "rightValue": "indeed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -528,
+        464
+      ],
+      "id": "356bafea-3a4b-4cd8-8447-c18ecc44b91b",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5a6e5357-8fe4-4577-a54f-be5e725aa16c",
+              "name": "timestamp",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "2fc1069a-bf64-4764-a986-b96aee718ddb",
+              "name": "status",
+              "value": "Success",
+              "type": "string"
+            },
+            {
+              "id": "dde0d6cb-de97-4eb4-a0e1-564d8bc272c3",
+              "name": "data",
+              "value": "={{ $('Job Search URL').item.json.body.resume }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2192,
+        480
+      ],
+      "id": "bac4c3aa-b7b9-4a95-b821-24371029577e",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-opus-4-8",
+          "mode": "list",
+          "cachedResultName": "claude-opus-4-8"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert resume writer and ATS (Applicant Tracking System) optimization specialist. Your ONLY job in this task is to produce a professionally rewritten, ATS-optimized RESUME as structured JSON data — no HTML, no cover letter, no commentary.\n\n=====================================================\nABSOLUTE RULES (NON-NEGOTIABLE)\n=====================================================\n2. NEVER invent, assume, exaggerate, or embellish:\n   - Job titles, employers, dates, locations\n   - Projects, achievements, metrics, or responsibilities\n   - Education, degrees, coursework, GPAs, honors\n   - Publications, patents, awards\n   - Years of experience or seniority level\n3. You SHOULD:\n   - Rephrase Skills, tools, technologies\n   - Rephrase, reorganize, and professionally tighten existing bullet points\n   - Reorder bullets/sections to foreground what's most relevant to the target job\n   - Surface and rephrase keywords from the job description \n   - Quantify or clarify language ONLY using numbers/facts already present in the original resume — never fabricate new metrics\n\n=====================================================\nATS OPTIMIZATION RULES\n=====================================================\n1. Extract relevant keywords, hard skills, and phrasing from the job description.\n\n=====================================================\nSKILLS CATEGORIZATION RULES\n=====================================================\n1. Group the candidate's skills into 3-6 logical categories under \"skillCategories\" — never output one flat undifferentiated list.\n2. Choose category names that fit the candidate's actual field/domain — do not force a generic tech template onto every resume. Examples:\n   - Software/Engineering candidate: \"Programming Languages,\" \"Frameworks & Libraries,\" \"Databases,\" \"Developer Tools,\" \"CS Fundamentals & Methodologies\"\n   - Marketing candidate: \"Digital Marketing,\" \"Analytics & Reporting Tools,\" \"Content & Campaign Management,\" \"CRM & Automation Platforms\"\n   - Finance/Accounting candidate: \"Financial Analysis,\" \"Accounting Software,\" \"Regulatory & Compliance,\" \"Reporting Tools\"\n   - Design candidate: \"Design Software,\" \"Design Disciplines,\" \"Prototyping & Research Tools\"\n   - Healthcare, education, operations, sales, HR, legal, or any other domain: infer sensible categories from what is actually present in the resume and job description — do not default to the tech examples above unless the candidate is actually in a technical field.\n3. Order categories with the most job-relevant category first, based on the job description.\n4. Category names should be Title Case, concise (2-4 words), and never generic filler like \"Other Skills\" — if a skill doesn't cleanly fit elsewhere, choose the closest sensible category.\n\n=====================================================\nSTRUCTURE PRESERVATION\n=====================================================\n1. Preserve the original resume's section order and content hierarchy as closely as the schema allows.\n2. Do not change employer names, job titles, dates, or education details — copy them exactly as given.\n3. Every resume in this batch must conform to the exact same JSON schema below, regardless of company/job, so downstream code can process them identically.\n\n=====================================================\nCOMPLETENESS RULES (CRITICAL)\n=====================================================\n1. You MUST output every key in the schema, fully, ending with the final closing brace }. A response that is cut off mid-way is a failed response.\n2. To guarantee completeness, be CONCISE:\n   - professionalSummary: max 3-4 sentences\n   - Each experience entry: max 4 bullets, each bullet max ~25 words\n   - Each project entry: max 3 bullets\n   - skillCategories: max 6 categories, each with max 8 items\n\n=====================================================\nOUTPUT FORMAT — STRICT\n=====================================================\n1. Output MUST be a single, valid JSON object and NOTHING else — no Markdown, no code fences (no ```), no explanations, no commentary, no trailing text.\n2. Output MUST start with exactly: {\n3. Output MUST end with exactly: }\n4. All strings must be valid JSON strings (escape quotes, newlines, etc. properly).\n5. Use this EXACT schema and key names — do not add, remove, or rename keys. If a field/section is not present in the original resume, use an empty array [] or empty string \"\" as appropriate — never omit the key.\n\n{\n  \"candidateName\": \"string\",\n  \"contactInfo\": {\n    \"email\": \"string\",\n    \"phone\": \"string\",\n    \"location\": \"string\",\n    \"linkedin\": \"string\",\n    \"website\": \"string\"\n  },\n  \"contactInfo\": {\n    \"email\": \"string\",\n    \"phone\": \"string\",\n    \"location\": \"string\",\n    \"linkedin\": \"string\",\n    \"website\": \"string\"\n  },\n  \"credentialsLine\": \"string\",\n  \"tagline\": \"string\",\n  \"professionalSummary\": \"string\",\n  \"skillCategories\": [\n    {\n      \"categoryName\": \"string\",\n      \"items\": [\"string\", \"string\"]\n    }\n  ],\n  \"experience\": [\n    {\n      \"jobTitle\": \"string\",\n      \"employer\": \"string\",\n      \"location\": \"string\",\n      \"startDate\": \"string\",\n      \"endDate\": \"string\",\n      \"bullets\": [\"string\", \"string\"]\n    }\n  ],\n  \"education\": [\n    {\n      \"degree\": \"string\",\n      \"institution\": \"string\",\n      \"location\": \"string\",\n      \"startDate\": \"string\",\n      \"endDate\": \"string\",\n      \"details\": \"string\"\n    }\n  ],\n  \"certifications\": [\"string\"],\n  \"projects\": [\n    {\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"bullets\": [\"string\"]\n    }\n  ],\n  \"additionalSections\": [\n    {\n      \"heading\": \"string\",\n      \"items\": [\"string\"]\n    }\n  ]\n}",
+              "role": "assistant"
+            },
+            {
+              "content": "=Generate a tailored, ATS-optimized resume for the following application, following all rules in your system instructions exactly.\n\nCOMPANY NAME:\n{{ $json.company_name }}\n\nJOB TITLE:\n{{ $json.job_title }}\n\nJOB DESCRIPTION:\n{{ $json.job_description }}\n\nORIGINAL RESUME CONTENT:\n{{ $('Webhook').item.json.body.resumeContent }}\n\nINSTRUCTIONS:\n1. Identify the key skills, qualifications, and keywords in the job description.\n3. Rewrite the resume professionally, preserving section order/structure, optimizing wording for ATS, employers, titles, dates, or education details.\n4. Return ONLY the resume as a single valid JSON object matching the exact schema in your system instructions — starting with { and ending with }, no Markdown, no code fences, no commentary."
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 30000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d56ceaf7-12d8-4b9f-8593-241554bf0f97",
+      "name": "RESUME",
+      "credentials": {
+        "anthropicApi": {
+          "id": "1s7ylmtpaeXum7H4",
+          "name": "Hemant Sir"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-opus-4-8",
+          "mode": "list",
+          "cachedResultName": "claude-opus-4-8"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert career coach and cover letter writer. Your ONLY job in this task is to produce a truthful, highly personalized COVER LETTER as structured JSON data — no HTML, no resume, no commentary.\n\n=====================================================\nABSOLUTE TRUTHFULNESS RULES (NON-NEGOTIABLE)\n=====================================================\n1. Draw ONLY on facts, roles, and accomplishments that exist in the provided \"ORIGINAL RESUME CONTENT.\"\n2. NEVER invent anecdotes, motivations, backstory, employers, titles, dates, skills, or achievements not evidenced in the source material.\n3. When in doubt, stay conservative and truthful rather than writing a stronger-sounding but fabricated claim.\n\n=====================================================\nCOVER LETTER REQUIREMENTS\n=====================================================\n1. Address it to the specific company and role provided.\n2. Explicitly and specifically connect 2-4 real experiences/achievements from the resume to the actual requirements stated in the job description.\n3. Professional business-letter tone: concise, confident, no clichés, no generic filler.\n4. Structure: opening paragraph naming the role/company and a hook; 1-2 body paragraphs connecting real experience to job needs; closing paragraph with a clear call to action.\n5. Do not fabricate personal motivations or connections to the company that are not inferable from the provided materials.\n\n=====================================================\nOUTPUT FORMAT — STRICT\n=====================================================\n1. Output MUST be a single, valid JSON object and NOTHING else — no Markdown, no code fences (no ```), no explanations, no commentary, no trailing text.\n2. Output MUST start with exactly: {\n3. Output MUST end with exactly: }\n4. All strings must be valid JSON strings (escape quotes, newlines, etc. properly).\n5. Use this EXACT schema and key names — do not add, remove, or rename keys.\n\n{\n  \"candidateName\": \"string\",\n  \"candidateContact\": {\n    \"email\": \"string\",\n    \"phone\": \"string\",\n    \"location\": \"string\"\n  },\n  \"date\": \"string\",\n  \"companyName\": \"string\",\n  \"jobTitle\": \"string\",\n  \"salutation\": \"string\",\n  \"openingParagraph\": \"string\",\n  \"bodyParagraphs\": [\"string\", \"string\"],\n  \"closingParagraph\": \"string\",\n  \"signOff\": \"string\"\n}",
+              "role": "assistant"
+            },
+            {
+              "content": "=Write a personalized cover letter for the following application, following all rules in your system instructions exactly.\n\nCOMPANY NAME:\n{{ $json.company_name }}\n\nJOB TITLE:\n{{ $json.job_title }}\n\nJOB DESCRIPTION:\n{{ $json.job_description }}\n\nORIGINAL RESUME CONTENT:\n{{ $('Webhook').item.json.body.resumeContent }}\n\nINSTRUCTIONS:\n1. Identify the 2-4 strongest, most relevant real experiences/achievements in the ORIGINAL RESUME CONTENT for this specific role and company.\n2. Write a concise, professional cover letter for {{ $json.job_title }} at {{ $json.company_name }} that explicitly connects those real experiences to the job description's requirements.\n3. Return ONLY the cover letter as a single valid JSON object matching the exact schema in your system instructions — starting with { and ending with }, no Markdown, no code fences, no commentary."
+            }
+          ]
+        },
+        "options": {
+          "maxUses": 20000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        16,
+        400
+      ],
+      "id": "81bf9517-cba6-4932-aea3-c2d8ed654ff6",
+      "name": "COVER LETTER",
+      "credentials": {
+        "anthropicApi": {
+          "id": "1s7ylmtpaeXum7H4",
+          "name": "Hemant Sir"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node - \"Run Once for All Items\" mode\n// Place this directly before your Respond to Webhook node.\n// It normalizes every incoming item into the resume schema and\n// returns them all as ONE array (required by the frontend).\n\nconst schema = {\n  candidateName: \"\",\n  contactInfo: { email: \"\", phone: \"\", location: \"\", linkedin: \"\", website: \"\" },\n  professionalSummary: \"\",\n  skillCategories: [],\n  experience: [],\n  education: [],\n  certifications: [],\n  projects: [],\n  additionalSections: []\n};\n\nconst results = [];\n\nfor (const item of $input.all()) {\n  let rawText = item.json.content?.[0]?.text\n             ?? item.json.output\n             ?? item.json.text\n             ?? item.json.data;\n\n  // If this item is already a normalized object (e.g. ran through the\n  // per-item Code node earlier), just use it directly instead of re-parsing.\n  if (!rawText && item.json.candidateName) {\n    results.push({ ...schema, ...item.json, contactInfo: { ...schema.contactInfo, ...(item.json.contactInfo || {}) } });\n    continue;\n  }\n\n  if (!rawText) {\n    throw new Error(\n      `Could not find Claude response text on item ${results.length}. ` +\n      `Check the field name — log item.json to inspect it.`\n    );\n  }\n\n  rawText = rawText.trim();\n  if (rawText.startsWith('```')) {\n    rawText = rawText.replace(/^```(?:json)?\\s*/i, '').replace(/```\\s*$/, '').trim();\n  }\n\n  let resume;\n  try {\n    resume = JSON.parse(rawText);\n  } catch (err) {\n    throw new Error(\n      `Failed to parse Claude's response as JSON for item ${results.length}. ` +\n      `Raw text: ${rawText.substring(0, 300)}...`\n    );\n  }\n\n  const normalized = { ...schema, ...resume };\n  normalized.contactInfo = { ...schema.contactInfo, ...(resume.contactInfo || {}) };\n\n  results.push(normalized);\n}\n\n// IMPORTANT: return ONE item whose json IS the array.\n// n8n wraps this as [{ json: [...] }] internally, but when your\n// Respond to Webhook node is set to return $json (or \"First Incoming Item\"),\n// it will output the array itself as the HTTP response body.\nreturn [{ json: { resumes: results } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        0
+      ],
+      "id": "31e26b75-d345-404d-acf0-92b57747c02e",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------\n// Strip code fences the model sometimes adds anyway\n// ---------------------------------------------\nfunction cleanText(rawText) {\n  return rawText.trim()\n    .replace(/^```json\\s*/i, \"\")\n    .replace(/^```\\s*/i, \"\")\n    .replace(/```\\s*$/i, \"\");\n}\n\n// ---------------------------------------------\n// Best-effort repair for JSON truncated mid-string/mid-object.\n// This is only a safety net — the real fix is raising max_tokens\n// on the COVER LETTER node so truncation stops happening at the source.\n// ---------------------------------------------\nfunction attemptRepair(text) {\n  let repaired = text;\n\n  const quoteCount = (repaired.match(/(?<!\\\\)\"/g) || []).length;\n  if (quoteCount % 2 !== 0) {\n    repaired += '\"';\n  }\n\n  repaired = repaired.replace(/,\\s*$/, \"\");\n\n  const stack = [];\n  for (const ch of repaired) {\n    if (ch === \"{\" || ch === \"[\") stack.push(ch);\n    else if (ch === \"}\" || ch === \"]\") stack.pop();\n  }\n  while (stack.length) {\n    const open = stack.pop();\n    repaired += open === \"{\" ? \"}\" : \"]\";\n  }\n\n  return repaired;\n}\n\nfunction parseCoverLetterJson(rawTextRaw) {\n  const rawText = cleanText(rawTextRaw);\n  try {\n    return JSON.parse(rawText);\n  } catch (firstErr) {\n    try {\n      return JSON.parse(attemptRepair(rawText));\n    } catch (secondErr) {\n      throw new Error(\n        `Failed to parse cover letter JSON even after repair attempt: ${secondErr.message}. ` +\n        `The AI node's response was truncated (raw length: ${rawText.length} chars). ` +\n        `Fix: open the COVER LETTER node and increase its max_tokens setting to ` +\n        `2000-3000, then re-run.`\n      );\n    }\n  }\n}\n\n// ---------------------------------------------\n// Build the Google Docs batchUpdate \"requests\" array\n// for a single parsed cover letter object. Index/requests\n// are local to each call so items never bleed into each other.\n// ---------------------------------------------\nfunction buildRequestsForCoverLetter(data) {\n  let requests = [];\n  let index = 1;\n\n  function addText(text, options = {}) {\n    text = text || \"\";\n    const start = index;\n    requests.push({\n      insertText: {\n        location: { index },\n        text: text + \"\\n\"\n      }\n    });\n    index += text.length + 1;\n    if (text.length > 0 && (options.fontSize || options.bold || options.fontFamily)) {\n      requests.push({\n        updateTextStyle: {\n          range: {\n            startIndex: start,\n            endIndex: index - 1\n          },\n          textStyle: {\n            bold: options.bold || false,\n            weightedFontFamily: {\n              fontFamily: options.fontFamily || \"Times New Roman\"\n            },\n            fontSize: {\n              magnitude: options.fontSize || 11,\n              unit: \"PT\"\n            }\n          },\n          fields: \"bold,weightedFontFamily,fontSize\"\n        }\n      });\n    }\n    return start;\n  }\n\n  function addBlankLine() {\n    addText(\"\", { fontSize: 11 });\n  }\n\n  // ==========================\n  // SENDER HEADER (candidate name + contact)\n  // ==========================\n  addText(data.candidateName || \"\", {\n    bold: true,\n    fontSize: 16\n  });\n\n  const contact = data.candidateContact || {};\n  const contactLine = [contact.email, contact.phone, contact.location]\n    .filter(Boolean)\n    .join(\"   |   \");\n  addText(contactLine, { fontSize: 10 });\n\n  addBlankLine();\n\n  // ==========================\n  // DATE\n  // ==========================\n  if (data.date) {\n    addText(data.date, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  // ==========================\n  // RECIPIENT / ROLE REFERENCE\n  // ==========================\n  if (data.companyName) {\n    addText(data.companyName, { fontSize: 11 });\n  }\n  if (data.jobTitle) {\n    addText(`Re: Application for ${data.jobTitle}`, {\n      fontSize: 11,\n      bold: true\n    });\n  }\n\n  addBlankLine();\n\n  // ==========================\n  // SALUTATION\n  // ==========================\n  addText(data.salutation || \"Dear Hiring Manager,\", {\n    fontSize: 11\n  });\n\n  addBlankLine();\n\n  // ==========================\n  // BODY\n  // ==========================\n  if (data.openingParagraph) {\n    addText(data.openingParagraph, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  for (const para of data.bodyParagraphs || []) {\n    addText(para, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  if (data.closingParagraph) {\n    addText(data.closingParagraph, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  // ==========================\n  // SIGN OFF\n  // ==========================\n  addText(data.signOff || \"Sincerely,\", { fontSize: 11 });\n  addBlankLine();\n  addText(data.candidateName || \"\", { fontSize: 11 });\n\n  return requests;\n}\n\n// ---------------------------------------------\n// MAIN — process every input item, not just the first\n// ---------------------------------------------\nconst allItems = $input.all();\nconst output = [];\n\nfor (let i = 0; i < allItems.length; i++) {\n  const item = allItems[i].json;\n\n  let rawText;\n  try {\n    rawText = item.content[0].text;\n  } catch (e) {\n    throw new Error(`Item ${i}: missing content[0].text in AI node output.`);\n  }\n\n  const data = parseCoverLetterJson(rawText);\n  const requests = buildRequestsForCoverLetter(data);\n\n  output.push({\n    json: {\n      requests,\n      candidateName: data.candidateName || \"\",\n      companyName: data.companyName || \"\"\n    }\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        400
+      ],
+      "id": "424dfdc2-ec64-4015-9485-ebb8ea244271",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        208
+      ],
+      "id": "419aec2b-e043-4d6f-9af3-67f25359db9b",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n   console.log('input items:', items);\n   console.log('first item json:', items[0]?.json);\n   console.log(\"Hello\");\n   const results = items.map((item, index) => {\n     const match = $('LinkedIn Job').all()[index];\n     console.log(`index ${index} ->`, match?.json.company_name);\n     return {\n       companyName: match?.json.company_name ?? \"\",\n       resumeUrl: item.json.resumeUrl ?? \"\",\n       coverLetterUrl: item.json.coverUrl ?? \"\"\n     };\n   });\n\n   return [{ json: { results } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        208
+      ],
+      "id": "78c6b5f1-4f1f-4d43-a310-572d8b21b124",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code Node 1: Extract Resume Template\n// Uses getBinaryDataBuffer() — required on n8n Cloud since binary.data\n// is often just a filesystem/S3 reference, not the actual base64 content\n\nconst items = $input.all();\n\nlet documentXml = null;\nlet stylesXml = null;\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const binaryKeys = Object.keys(item.binary || {});\n\n  for (const key of binaryKeys) {\n    const bin = item.binary[key];\n    const fileName = (bin.fileName || '').toLowerCase();\n    const directory = (bin.directory || '').toLowerCase();\n\n    // Only bother reading files that are plausible candidates\n    if (fileName !== 'document.xml' && fileName !== 'styles.xml') continue;\n\n    const buffer = await this.helpers.getBinaryDataBuffer(i, key);\n    const text = buffer.toString('utf8');\n\n    if (directory === 'word' && fileName === 'document.xml') {\n      documentXml = text;\n    } else if (directory === 'word' && fileName === 'styles.xml') {\n      stylesXml = text;\n    }\n  }\n}\n\n// Fallback: content-sniff in case fileName/directory metadata isn't reliable\nif (!documentXml) {\n  for (let i = 0; i < items.length; i++) {\n    const item = items[i];\n    const binaryKeys = Object.keys(item.binary || {});\n    for (const key of binaryKeys) {\n      const buffer = await this.helpers.getBinaryDataBuffer(i, key);\n      const text = buffer.toString('utf8');\n      if (text.includes('<w:document') && text.includes('<w:body')) {\n        documentXml = text;\n      } else if (text.includes('<w:styles')) {\n        stylesXml = text;\n      }\n    }\n  }\n}\n\nif (!documentXml) {\n  throw new Error('Could not locate word/document.xml among decompressed files. Check the Compression node output.');\n}\n\n// ---------- Extract paragraph + run level formatting ----------\nfunction extractTemplate(xml) {\n  const paragraphs = [];\n  const paraMatches = xml.match(/<w:p\\b[^>]*>[\\s\\S]*?<\\/w:p>/g) || [];\n\n  paraMatches.forEach((p, pIndex) => {\n    const runs = [];\n    const runMatches = p.match(/<w:r\\b[^>]*>[\\s\\S]*?<\\/w:r>/g) || [];\n\n    runMatches.forEach(r => {\n      const textMatch = r.match(/<w:t[^>]*>([\\s\\S]*?)<\\/w:t>/);\n      const text = textMatch ? textMatch[1] : '';\n\n      runs.push({\n        text,\n        bold: /<w:b\\s*\\/?>|<w:b w:val=\"(true|1)\"/.test(r),\n        italic: /<w:i\\s*\\/?>|<w:i w:val=\"(true|1)\"/.test(r),\n        underline: /<w:u\\s+w:val=\"single\"/.test(r),\n        font: (r.match(/<w:rFonts[^>]*w:ascii=\"([^\"]*)\"/) || [])[1] || null,\n        size: (() => {\n          const m = r.match(/<w:sz w:val=\"([^\"]*)\"/);\n          return m ? parseInt(m[1], 10) / 2 : null;\n        })(),\n        color: (r.match(/<w:color w:val=\"([^\"]*)\"/) || [])[1] || null\n      });\n    });\n\n    paragraphs.push({\n      index: pIndex,\n      style: (p.match(/<w:pStyle w:val=\"([^\"]*)\"/) || [])[1] || 'Normal',\n      alignment: (p.match(/<w:jc w:val=\"([^\"]*)\"/) || [])[1] || 'left',\n      runs\n    });\n  });\n\n  return paragraphs;\n}\n\nconst resumeTemplate = extractTemplate(documentXml);\n\nreturn [\n  {\n    json: {\n      resumeTemplate,\n      rawDocumentXml: documentXml,\n      stylesXml\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2432,
+        480
+      ],
+      "id": "640cdbdc-499c-45d5-9e58-a50d96b815c6",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "resume"
+      },
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        -2672,
+        480
+      ],
+      "id": "6c962675-81a3-4675-85a7-31dde1f33b6d",
+      "name": "Compression1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code Node 0: Relabel docx binary as .zip so Compression node accepts it\n// (docx IS a zip file underneath — we're only changing metadata, not content)\n\nconst items = $input.all();\n\nfor (const item of items) {\n  if (item.binary && item.binary.resume) {\n    item.binary.resume.fileName = 'resume.zip';\n    item.binary.resume.fileExtension = 'zip';\n    item.binary.resume.mimeType = 'application/zip';\n  }\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2928,
+        480
+      ],
+      "id": "6bcb203a-fc27-4bc5-bedc-d451d1012cef",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1RVHC-B-wfc75QMGzL0KFbh9sshzzdTscQy4YuTVHHjk",
+          "mode": "list",
+          "cachedResultName": "Job Description",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RVHC-B-wfc75QMGzL0KFbh9sshzzdTscQy4YuTVHHjk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 215115002,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RVHC-B-wfc75QMGzL0KFbh9sshzzdTscQy4YuTVHHjk/edit#gid=215115002"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job Post Link": "={{ $('LinkedIn Job').item.json.job_url }}",
+            "Job Title": "={{ $('LinkedIn Job').item.json.job_title }}",
+            "Posted At ": "={{ $('LinkedIn Job').item.json.time_posted }}",
+            "Application Link": "={{ $('LinkedIn Job').item.json.apply_url }}",
+            "Company Name": "={{ $('LinkedIn Job').item.json.company_name }}",
+            "Description": "={{ $('LinkedIn Job').item.json.job_description }}",
+            "Salary ": "={{ $('LinkedIn Job').item.json.salary_range }}",
+            "Status": "To-do",
+            "Company Website ": "={{ $('LinkedIn Job').item.json.company_url }}",
+            "Seniority Level": "={{ $('LinkedIn Job').item.json.seniority_level }}",
+            "resumeUrl": "={{ $json.resumeUrl }}",
+            "coverLetterUrl": "={{ $json.coverUrl }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Job Post Link",
+              "displayName": "Job Post Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Seniority Level",
+              "displayName": "Seniority Level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Posted At ",
+              "displayName": "Posted At ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Website ",
+              "displayName": "Company Website ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Salary ",
+              "displayName": "Salary ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicants",
+              "displayName": "Applicants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resumeUrl",
+              "displayName": "resumeUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Application Link",
+              "displayName": "Application Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "coverLetterUrl",
+              "displayName": "coverLetterUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2064,
+        208
+      ],
+      "id": "b3e361b5-6ebc-46f3-8f79-739c53876c87",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6yLsryrn9IjwLT5Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1584,
+        224
+      ],
+      "id": "9e34ec81-5355-4db7-8a37-046d51b4dd9f",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "folderId": "=",
+        "title": "=Resume {{ $('LinkedIn Job').item.json.company_name }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        752,
+        0
+      ],
+      "id": "15e0b31e-753f-4a6b-bcd4-3df3a57abf2d",
+      "name": "Create a document3",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "lPMYoAFGgMYnXh9m",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "=CoverLetter {{ $('LinkedIn Job').item.json.company_name }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        560,
+        400
+      ],
+      "id": "fe593911-7cd5-4a3f-b142-e78bac751d38",
+      "name": "Create a document4",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "lPMYoAFGgMYnXh9m",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dbfff6b0-d848-48f3-8eb6-f37554d96278",
+              "name": "resumeUrl",
+              "value": "={{ 'https://docs.google.com/document/d/' + $('Create a document3').item.json.id + '/edit' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        0
+      ],
+      "id": "d71c97fe-b34b-474e-8ceb-198eba0ee70a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f80ac636-c052-4fc9-aa1b-3155a72ff27d",
+              "name": "coverUrl",
+              "value": "={{ 'https://docs.google.com/document/d/' + $('Create a document4').item.json.id + '/edit' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        400
+      ],
+      "id": "9048fb3c-014a-4dc5-a3db-6bd977726ac7",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Create a document3').item.json.id }}:batchUpdate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ requests:$json.requests }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "3b0b1e46-5087-4b8d-9bea-6989be6e682d",
+      "name": "HTTP Request2",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "TjX1p2C1iuLNXe25",
+          "name": "sammm"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Create a document4').item.json.id }}:batchUpdate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"requests\": {{ JSON.stringify($('Code in JavaScript3').item.json.requests) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        400
+      ],
+      "id": "89c68951-2821-40a9-bf74-8121d40f7c15",
+      "name": "HTTP Request3",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "TjX1p2C1iuLNXe25",
+          "name": "sammm"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const resumeSourceItem = $('Code in JavaScript2').item;\nconst resumesArray = Array.isArray(resumeSourceItem.json.resumes)\n  ? resumeSourceItem.json.resumes\n  : [resumeSourceItem.json];\n\n// ---- Brand colors / constants ----\nconst HEADING_COLOR = '1F4E79';\nconst WHITE = 'FFFFFF';\nconst BODY_FONT = 'Calibri';\nconst CONTENT_WIDTH = 468; // total usable line width in points (matches your page margins)\n\nfunction buildResumeParagraphs(resumeData) {\n  const paragraphs = [];\n\n  function addPara(runs, opts = {}) {\n    paragraphs.push({\n      style: opts.style || 'Normal',\n      alignment: opts.alignment || 'justify',\n      border: opts.border || false,\n      borderColor: opts.borderColor || null,\n      shading: opts.shading || null,\n      spaceAfter: opts.spaceAfter || 0,\n      spaceBefore: opts.spaceBefore || 0,\n      keepWithNext: opts.keepWithNext || false,\n      keepLinesTogether: opts.keepLinesTogether !== false,\n      runs\n    });\n  }\n\n  function run(text, o = {}) {\n    return {\n      text: String(text ?? ''),\n      bold: o.bold || false,\n      italic: o.italic || false,\n      underline: o.underline || false,\n      font: o.font || BODY_FONT,\n      size: o.size || 11,\n      color: o.color || null,\n      link: o.link || null\n    };\n  }\n\n  function addBlank() {\n    addPara([run('')], { size: 6, alignment: 'left' });\n  }\n\n  function sectionHeader(title) {\n    addPara([run(title, { bold: true, size: 12, color: HEADING_COLOR })], {\n      border: true,\n      borderColor: HEADING_COLOR,\n      spaceAfter: 4,\n      alignment: 'left'\n    });\n  }\n\n  const AVG_CHAR_WIDTH_FACTOR = 0.5;\n  const SPACE_WIDTH_FACTOR = 0.28;\n\n  function estimateWidth(text, fontSize) {\n    return text.length * fontSize * AVG_CHAR_WIDTH_FACTOR;\n  }\n\n  function addTitleDateLine(leftText, dateText, opts = {}) {\n    const LEFT_SIZE = 11.5;\n    const DATE_SIZE = 10.5;\n\n    const leftWidth = estimateWidth(leftText, LEFT_SIZE);\n    const dateWidth = estimateWidth(dateText, DATE_SIZE);\n    const spaceWidth = ((LEFT_SIZE + DATE_SIZE) / 2) * SPACE_WIDTH_FACTOR;\n\n    const availableWidth = CONTENT_WIDTH - leftWidth - dateWidth;\n    const numSpaces = Math.max(3, Math.round(availableWidth / spaceWidth));\n\n    addPara([\n      run(leftText, { bold: true, size: LEFT_SIZE }),\n      run(' '.repeat(numSpaces), { size: LEFT_SIZE }),\n      run(dateText, { italic: true, size: DATE_SIZE })\n    ], { alignment: 'left', keepWithNext: opts.keepWithNext || false });\n  }\n\n  function chainKeepTogether(startIndex) {\n    for (let i = startIndex; i < paragraphs.length - 1; i++) {\n      paragraphs[i].keepWithNext = true;\n    }\n  }\n\n  // ================= HEADER (blue banner, white text) =================\n  const HEADER_BG      = '1F4E79';\n  const NAME_COLOR     = WHITE;\n  const CRED_COLOR     = WHITE;\n  const TAGLINE_COLOR  = WHITE;\n  const CONTACT_COLOR  = WHITE;\n  const LINK_COLOR     = WHITE;\n  const HEADER_FONT    = 'Georgia';\n\n  addPara([run('', { size: 4 })], { alignment: 'center', shading: HEADER_BG });\n\n  addPara([run((resumeData.candidateName || '').toUpperCase(), {\n    bold: true, size: 22, color: NAME_COLOR, font: HEADER_FONT\n  })], { alignment: 'center', shading: HEADER_BG });\n\n  if (resumeData.credentialsLine) {\n    addPara([run(resumeData.credentialsLine, {\n      italic: true, size: 11, color: CRED_COLOR, font: HEADER_FONT\n    })], { alignment: 'center', shading: HEADER_BG });\n  }\n\n  if (resumeData.tagline) {\n    addPara([run(resumeData.tagline, {\n      bold: true, size: 12, color: TAGLINE_COLOR, font: HEADER_FONT\n    })], { alignment: 'center', shading: HEADER_BG });\n  }\n\n  const c = resumeData.contactInfo || {};\n  const contactRuns = [];\n  const pieces = [];\n  if (c.location) pieces.push({ text: c.location });\n  if (c.phone) pieces.push({ text: c.phone });\n  if (c.email) pieces.push({ text: c.email });\n  if (c.linkedin) {\n    const displayText = c.linkedin.replace(/^https?:\\/\\//, '');\n    pieces.push({ text: displayText, link: c.linkedin });\n  }\n  pieces.forEach((p, i) => {\n    if (i > 0) contactRuns.push(run(' • ', { size: 10, color: CONTACT_COLOR, font: HEADER_FONT }));\n    contactRuns.push(run(p.text, {\n      size: 10,\n      link: p.link || null,\n      underline: !!p.link,\n      color: p.link ? LINK_COLOR : CONTACT_COLOR,\n      font: HEADER_FONT\n    }));\n  });\n  addPara(contactRuns, { alignment: 'center', shading: HEADER_BG });\n\n  addPara([run('', { size: 4 })], { alignment: 'center', shading: HEADER_BG });\n  addBlank();\n\n  // ================= PROFESSIONAL SUMMARY =================\n  if (resumeData.professionalSummary) {\n    const blockStart = paragraphs.length;\n    sectionHeader('PROFESSIONAL SUMMARY');\n    addPara([run(resumeData.professionalSummary, { size: 11 })], { alignment: 'justify' });\n    chainKeepTogether(blockStart);\n    addBlank();\n  }\n\n  // ================= SKILLS =================\n  if (resumeData.skillCategories?.length) {\n    const blockStart = paragraphs.length;\n    sectionHeader('TECHNICAL SKILLS');\n    resumeData.skillCategories.forEach(cat => {\n      const label = cat.categoryName || cat.category || cat.name || '';\n      const items = (cat.items || cat.skills || []).join(', ');\n      addPara([\n        run(label + ': ', { bold: true, size: 11, color: HEADING_COLOR }),\n        run(items, { size: 11 })\n      ], { alignment: 'justify' });\n    });\n    chainKeepTogether(blockStart);\n    addBlank();\n  }\n\n  // ================= EXPERIENCE =================\n  if (resumeData.experience?.length) {\n    sectionHeader('PROFESSIONAL EXPERIENCE');\n    paragraphs[paragraphs.length - 1].keepWithNext = true;\n\n    resumeData.experience.forEach(exp => {\n      const entryStart = paragraphs.length;\n      const titleLine = [exp.jobTitle, exp.employer].filter(Boolean).join('  —  ');\n      const dates = [exp.startDate, exp.endDate].filter(Boolean).join(' – ');\n      addTitleDateLine(titleLine + (exp.location ? `, ${exp.location}` : ''), dates);\n      (exp.bullets || []).forEach(b =>\n        addPara([run('•  ' + b, { size: 11 })], { alignment: 'justify' })\n      );\n      chainKeepTogether(entryStart);\n      addBlank();\n    });\n  }\n\n  // ================= PROJECTS =================\n  if (resumeData.projects?.length) {\n    sectionHeader('PROJECTS');\n    paragraphs[paragraphs.length - 1].keepWithNext = true;\n\n    resumeData.projects.forEach(p => {\n      const entryStart = paragraphs.length;\n      addPara([run(p.name || '', { bold: true, size: 11.5 })], { alignment: 'left' });\n      if (p.description) {\n        addPara([\n          run('Tech Stack: ', { bold: true, italic: true, size: 10.5 }),\n          run(p.description, { italic: true, size: 10.5 })\n        ], { alignment: 'justify' });\n      }\n      (p.bullets || []).forEach(b =>\n        addPara([run('•  ' + b, { size: 11 })], { alignment: 'justify' })\n      );\n      chainKeepTogether(entryStart);\n      addBlank();\n    });\n  }\n\n  // ================= EDUCATION =================\n  if (resumeData.education?.length) {\n    sectionHeader('EDUCATION');\n    paragraphs[paragraphs.length - 1].keepWithNext = true;\n\n    resumeData.education.forEach(ed => {\n      const entryStart = paragraphs.length;\n      const dates = [ed.startDate, ed.endDate].filter(Boolean).join(' – ');\n      addTitleDateLine(ed.degree || '', dates);\n      const instLine = [ed.institution, ed.location].filter(Boolean).join('  |  ');\n      if (instLine) addPara([run(instLine, { size: 11 })], { alignment: 'left' });\n      if (ed.details) addPara([run(ed.details, { size: 10.5 })], { alignment: 'justify' });\n      chainKeepTogether(entryStart);\n    });\n    addBlank();\n  }\n\n  // ================= CERTIFICATIONS =================\n  if (resumeData.certifications?.length) {\n    const blockStart = paragraphs.length;\n    sectionHeader('CERTIFICATIONS');\n    resumeData.certifications.forEach(cert =>\n      addPara([run('•  ' + (typeof cert === 'string' ? cert : (cert.name || '')), { size: 11 })], { alignment: 'justify' })\n    );\n    chainKeepTogether(blockStart);\n    addBlank();\n  }\n\n  // ================= ADDITIONAL SECTIONS =================\n  (resumeData.additionalSections || []).forEach(sec => {\n    const blockStart = paragraphs.length;\n    sectionHeader((sec.heading || '').toUpperCase());\n    (sec.items || []).forEach(i =>\n      addPara([run('•  ' + i, { size: 11 })], { alignment: 'justify' })\n    );\n    chainKeepTogether(blockStart);\n    addBlank();\n  });\n\n  return paragraphs;\n}\n\n// ---- Build one output item per resume in the array ----\nreturn resumesArray.map(resumeData => ({\n  json: {\n    resumeTemplate: buildResumeParagraphs(resumeData),\n    candidateName: resumeData.candidateName || ''\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        0
+      ],
+      "id": "04e6f46b-42c1-4aec-8cd6-0fdfa5d09b1b",
+      "name": "Code in JavaScript8"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process ALL items coming from \"Code in JavaScript8\" (one per resume)\nconst inputItems = $('Code in JavaScript8').all();\n\nfunction decodeHtmlEntities(str = \"\") {\n  return str\n    .replace(/&amp;/g, \"&\").replace(/&lt;/g, \"<\").replace(/&gt;/g, \">\")\n    .replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, \" \");\n}\n\nfunction hexToRgb(hex) {\n  if (!hex) return null;\n  const clean = hex.replace(\"#\", \"\");\n  if (clean.length !== 6) return null;\n  const bigint = parseInt(clean, 16);\n  return {\n    red: ((bigint >> 16) & 255) / 255,\n    green: ((bigint >> 8) & 255) / 255,\n    blue: (bigint & 255) / 255,\n  };\n}\n\n// Everything from your original script, wrapped in a function that\n// takes a single resume's paragraphs and returns its own requests array.\nfunction buildRequestsForResume(paragraphs) {\n  const requests = [];\n  let currentIndex = 1;\n\n  for (const para of paragraphs) {\n    if (!para.runs) continue;\n\n    para.runs.forEach(r => { r.text = decodeHtmlEntities(r.text || \"\"); });\n    const hasText = para.runs.some(r => r.text.trim().length);\n\n    let paragraphText = \"\";\n    const runRanges = [];\n    for (const run of para.runs) {\n      const start = currentIndex + paragraphText.length;\n      paragraphText += run.text || \"\";\n      const end = currentIndex + paragraphText.length;\n      runRanges.push({ run, start, end });\n    }\n    paragraphText += \"\\n\";\n\n    requests.push({\n      insertText: { location: { index: currentIndex }, text: paragraphText }\n    });\n\n    const paragraphStyle = {};\n    const paragraphFields = [\"namedStyleType\"];\n    paragraphStyle.namedStyleType = para.style === \"Heading1\" ? \"HEADING_1\" : \"NORMAL_TEXT\";\n\n    if (para.alignment) {\n      paragraphStyle.alignment =\n        para.alignment === \"center\"  ? \"CENTER\" :\n        para.alignment === \"right\"   ? \"END\" :\n        para.alignment === \"justify\" ? \"JUSTIFIED\" :\n        \"START\";\n      paragraphFields.push(\"alignment\");\n    }\n\n    if (typeof para.spaceAfter === \"number\") {\n      paragraphStyle.spaceBelow = { magnitude: para.spaceAfter, unit: \"PT\" };\n      paragraphFields.push(\"spaceBelow\");\n    }\n\n    if (typeof para.spaceBefore === \"number\" && para.spaceBefore > 0) {\n      paragraphStyle.spaceAbove = { magnitude: para.spaceBefore, unit: \"PT\" };\n      paragraphFields.push(\"spaceAbove\");\n    }\n\n    if (typeof para.lineSpacing === \"number\") {\n      paragraphStyle.lineSpacing = para.lineSpacing;\n      paragraphFields.push(\"lineSpacing\");\n    }\n\n    if (typeof para.indentStart === \"number\") {\n      paragraphStyle.indentStart = { magnitude: para.indentStart, unit: \"PT\" };\n      paragraphFields.push(\"indentStart\");\n    }\n\n    if (typeof para.indentEnd === \"number\") {\n      paragraphStyle.indentEnd = { magnitude: para.indentEnd, unit: \"PT\" };\n      paragraphFields.push(\"indentEnd\");\n    }\n\n    if (typeof para.firstLineIndent === \"number\") {\n      paragraphStyle.indentFirstLine = { magnitude: para.firstLineIndent, unit: \"PT\" };\n      paragraphFields.push(\"indentFirstLine\");\n    }\n\n    if (para.border) {\n      paragraphStyle.borderBottom = {\n        color: { color: { rgbColor: hexToRgb(para.borderColor || \"#1F4E79\") } },\n        width: { magnitude: 1, unit: \"PT\" },\n        padding: { magnitude: 2, unit: \"PT\" },\n        dashStyle: \"SOLID\"\n      };\n      paragraphFields.push(\"borderBottom\");\n    }\n\n    if (para.shading) {\n      paragraphStyle.shading = { backgroundColor: { color: { rgbColor: hexToRgb(para.shading) } } };\n      paragraphFields.push(\"shading\");\n    }\n\n    if (para.keepWithNext) {\n      paragraphStyle.keepWithNext = true;\n      paragraphFields.push(\"keepWithNext\");\n    }\n\n    if (para.keepLinesTogether) {\n      paragraphStyle.keepLinesTogether = true;\n      paragraphFields.push(\"keepLinesTogether\");\n    }\n\n    requests.push({\n      updateParagraphStyle: {\n        range: { startIndex: currentIndex, endIndex: currentIndex + paragraphText.length },\n        paragraphStyle,\n        fields: paragraphFields.join(\",\")\n      }\n    });\n\n    if (hasText) {\n      for (const { run, start, end } of runRanges) {\n        if (start >= end) continue;\n        const textStyle = {};\n        const textFields = [];\n        if (run.bold) { textStyle.bold = true; textFields.push(\"bold\"); }\n        if (run.italic) { textStyle.italic = true; textFields.push(\"italic\"); }\n        if (run.underline) { textStyle.underline = true; textFields.push(\"underline\"); }\n        if (run.font) { textStyle.weightedFontFamily = { fontFamily: run.font }; textFields.push(\"weightedFontFamily\"); }\n        if (run.size) { textStyle.fontSize = { magnitude: run.size, unit: \"PT\" }; textFields.push(\"fontSize\"); }\n        if (run.color) {\n          const rgb = hexToRgb(run.color);\n          if (rgb) { textStyle.foregroundColor = { color: { rgbColor: rgb } }; textFields.push(\"foregroundColor\"); }\n        }\n        if (run.link) { textStyle.link = { url: run.link }; textFields.push(\"link\"); }\n        if (textFields.length) {\n          requests.push({\n            updateTextStyle: { range: { startIndex: start, endIndex: end }, textStyle, fields: textFields.join(\",\") }\n          });\n        }\n      }\n    }\n\n    currentIndex += paragraphText.length;\n  }\n\n  return requests;\n}\n\n// Build one output item per input item, preserving candidateName etc.\nreturn inputItems.map(item => ({\n  json: {\n    requests: buildRequestsForResume(item.json.resumeTemplate),\n    candidateName: item.json.candidateName || ''\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        0
+      ],
+      "id": "80ecb62f-d95a-4bbd-97a5-d93e3805066b",
+      "name": "Code in JavaScript11"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.results }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2192,
+        912
+      ],
+      "id": "318ce340-b646-44e4-9f7d-8d7e5bd80882",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-opus-4-8",
+          "mode": "list",
+          "cachedResultName": "claude-opus-4-8"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert resume writer and ATS (Applicant Tracking System) optimization specialist. Your ONLY job in this task is to produce a professionally rewritten, ATS-optimized RESUME as structured JSON data — no HTML, no cover letter, no commentary.\n\n=====================================================\nABSOLUTE RULES (NON-NEGOTIABLE)\n=====================================================\n2. NEVER invent, assume, exaggerate, or embellish:\n   - Job titles, employers, dates, locations\n   - Projects, achievements, metrics, or responsibilities\n   - Education, degrees, coursework, GPAs, honors\n   - Publications, patents, awards\n   - Years of experience or seniority level\n3. You SHOULD:\n   - Rephrase Skills, tools, technologies\n   - Rephrase, reorganize, and professionally tighten existing bullet points\n   - Reorder bullets/sections to foreground what's most relevant to the target job\n   - Surface and rephrase keywords from the job description \n   - Quantify or clarify language ONLY using numbers/facts already present in the original resume — never fabricate new metrics\n\n=====================================================\nATS OPTIMIZATION RULES\n=====================================================\n1. Extract relevant keywords, hard skills, and phrasing from the job description.\n\n=====================================================\nSKILLS CATEGORIZATION RULES\n=====================================================\n1. Group the candidate's skills into 3-6 logical categories under \"skillCategories\" — never output one flat undifferentiated list.\n2. Choose category names that fit the candidate's actual field/domain — do not force a generic tech template onto every resume. Examples:\n   - Software/Engineering candidate: \"Programming Languages,\" \"Frameworks & Libraries,\" \"Databases,\" \"Developer Tools,\" \"CS Fundamentals & Methodologies\"\n   - Marketing candidate: \"Digital Marketing,\" \"Analytics & Reporting Tools,\" \"Content & Campaign Management,\" \"CRM & Automation Platforms\"\n   - Finance/Accounting candidate: \"Financial Analysis,\" \"Accounting Software,\" \"Regulatory & Compliance,\" \"Reporting Tools\"\n   - Design candidate: \"Design Software,\" \"Design Disciplines,\" \"Prototyping & Research Tools\"\n   - Healthcare, education, operations, sales, HR, legal, or any other domain: infer sensible categories from what is actually present in the resume and job description — do not default to the tech examples above unless the candidate is actually in a technical field.\n3. Order categories with the most job-relevant category first, based on the job description.\n4. Category names should be Title Case, concise (2-4 words), and never generic filler like \"Other Skills\" — if a skill doesn't cleanly fit elsewhere, choose the closest sensible category.\n\n=====================================================\nSTRUCTURE PRESERVATION\n=====================================================\n1. Preserve the original resume's section order and content hierarchy as closely as the schema allows.\n2. Do not change employer names, job titles, dates, or education details — copy them exactly as given.\n3. Every resume in this batch must conform to the exact same JSON schema below, regardless of company/job, so downstream code can process them identically.\n\n=====================================================\nCOMPLETENESS RULES (CRITICAL)\n=====================================================\n1. You MUST output every key in the schema, fully, ending with the final closing brace }. A response that is cut off mid-way is a failed response.\n2. To guarantee completeness, be CONCISE:\n   - professionalSummary: max 3-4 sentences\n   - Each experience entry: max 4 bullets, each bullet max ~25 words\n   - Each project entry: max 3 bullets\n   - skillCategories: max 6 categories, each with max 8 items\n\n=====================================================\nOUTPUT FORMAT — STRICT\n=====================================================\n1. Output MUST be a single, valid JSON object and NOTHING else — no Markdown, no code fences (no ```), no explanations, no commentary, no trailing text.\n2. Output MUST start with exactly: {\n3. Output MUST end with exactly: }\n4. All strings must be valid JSON strings (escape quotes, newlines, etc. properly).\n5. Use this EXACT schema and key names — do not add, remove, or rename keys. If a field/section is not present in the original resume, use an empty array [] or empty string \"\" as appropriate — never omit the key.\n\n{\n  \"candidateName\": \"string\",\n  \"contactInfo\": {\n    \"email\": \"string\",\n    \"phone\": \"string\",\n    \"location\": \"string\",\n    \"linkedin\": \"string\",\n    \"website\": \"string\"\n  },\n  \"professionalSummary\": \"string\",\n  \"skillCategories\": [\n    {\n      \"categoryName\": \"string\",\n      \"items\": [\"string\", \"string\"]\n    }\n  ],\n  \"experience\": [\n    {\n      \"jobTitle\": \"string\",\n      \"employer\": \"string\",\n      \"location\": \"string\",\n      \"startDate\": \"string\",\n      \"endDate\": \"string\",\n      \"bullets\": [\"string\", \"string\"]\n    }\n  ],\n  \"education\": [\n    {\n      \"degree\": \"string\",\n      \"institution\": \"string\",\n      \"location\": \"string\",\n      \"startDate\": \"string\",\n      \"endDate\": \"string\",\n      \"details\": \"string\"\n    }\n  ],\n  \"certifications\": [\"string\"],\n  \"projects\": [\n    {\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"bullets\": [\"string\"]\n    }\n  ],\n  \"additionalSections\": [\n    {\n      \"heading\": \"string\",\n      \"items\": [\"string\"]\n    }\n  ]\n}",
+              "role": "assistant"
+            },
+            {
+              "content": "=Generate a tailored, ATS-optimized resume for the following application, following all rules in your system instructions exactly.\n\nCOMPANY NAME:\n{{ $json.company_name }}\n\nJOB TITLE:\n{{ $json.job_title }}\n\nJOB DESCRIPTION:\n{{ $json.job_description }}\n\nORIGINAL RESUME CONTENT:\n{{ $('Webhook').item.json.body.resumeContent }}\n\nINSTRUCTIONS:\n1. Identify the key skills, qualifications, and keywords in the job description.\n3. Rewrite the resume professionally, preserving section order/structure, optimizing wording for ATS, employers, titles, dates, or education details.\n4. Return ONLY the resume as a single valid JSON object matching the exact schema in your system instructions — starting with { and ending with }, no Markdown, no code fences, no commentary."
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 25000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        0,
+        688
+      ],
+      "id": "cafd29e2-8343-4450-a1a2-c599bc8aa2e0",
+      "name": "RESUME1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "1s7ylmtpaeXum7H4",
+          "name": "Hemant Sir"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-opus-4-8",
+          "mode": "list",
+          "cachedResultName": "claude-opus-4-8"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert career coach and cover letter writer. Your ONLY job in this task is to produce a truthful, highly personalized COVER LETTER as structured JSON data — no HTML, no resume, no commentary.\n\n=====================================================\nABSOLUTE TRUTHFULNESS RULES (NON-NEGOTIABLE)\n=====================================================\n1. Draw ONLY on facts, roles, and accomplishments that exist in the provided \"ORIGINAL RESUME CONTENT.\"\n2. NEVER invent anecdotes, motivations, backstory, employers, titles, dates, skills, or achievements not evidenced in the source material.\n3. When in doubt, stay conservative and truthful rather than writing a stronger-sounding but fabricated claim.\n\n=====================================================\nCOVER LETTER REQUIREMENTS\n=====================================================\n1. Address it to the specific company and role provided.\n2. Explicitly and specifically connect 2-4 real experiences/achievements from the resume to the actual requirements stated in the job description.\n3. Professional business-letter tone: concise, confident, no clichés, no generic filler.\n4. Structure: opening paragraph naming the role/company and a hook; 1-2 body paragraphs connecting real experience to job needs; closing paragraph with a clear call to action.\n5. Do not fabricate personal motivations or connections to the company that are not inferable from the provided materials.\n\n=====================================================\nOUTPUT FORMAT — STRICT\n=====================================================\n1. Output MUST be a single, valid JSON object and NOTHING else — no Markdown, no code fences (no ```), no explanations, no commentary, no trailing text.\n2. Output MUST start with exactly: {\n3. Output MUST end with exactly: }\n4. All strings must be valid JSON strings (escape quotes, newlines, etc. properly).\n5. Use this EXACT schema and key names — do not add, remove, or rename keys.\n\n{\n  \"candidateName\": \"string\",\n  \"candidateContact\": {\n    \"email\": \"string\",\n    \"phone\": \"string\",\n    \"location\": \"string\"\n  },\n  \"date\": \"string\",\n  \"companyName\": \"string\",\n  \"jobTitle\": \"string\",\n  \"salutation\": \"string\",\n  \"openingParagraph\": \"string\",\n  \"bodyParagraphs\": [\"string\", \"string\"],\n  \"closingParagraph\": \"string\",\n  \"signOff\": \"string\"\n}",
+              "role": "assistant"
+            },
+            {
+              "content": "=Write a personalized cover letter for the following application, following all rules in your system instructions exactly.\n\nCOMPANY NAME:\n{{ $json.company_name }}\n\nJOB TITLE:\n{{ $json.job_title }}\n\nJOB DESCRIPTION:\n{{ $json.job_description }}\n\nORIGINAL RESUME CONTENT:\n{{ $('Webhook').item.json.body.resumeContent }}\n\nINSTRUCTIONS:\n1. Identify the 2-4 strongest, most relevant real experiences/achievements in the ORIGINAL RESUME CONTENT for this specific role and company.\n2. Write a concise, professional cover letter for {{ $json.job_title }} at {{ $json.company_name }} that explicitly connects those real experiences to the job description's requirements.\n3. Return ONLY the cover letter as a single valid JSON object matching the exact schema in your system instructions — starting with { and ending with }, no Markdown, no code fences, no commentary."
+            }
+          ]
+        },
+        "options": {
+          "maxUses": 20000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        16,
+        1088
+      ],
+      "id": "14323af7-5cbf-492b-b390-d6f6d0fc8b2d",
+      "name": "COVER LETTER1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "1s7ylmtpaeXum7H4",
+          "name": "Hemant Sir"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node - \"Run Once for All Items\" mode\n// Place this directly before your Respond to Webhook node.\n// It normalizes every incoming item into the resume schema and\n// returns them all as ONE array (required by the frontend).\n\nconst schema = {\n  candidateName: \"\",\n  contactInfo: { email: \"\", phone: \"\", location: \"\", linkedin: \"\", website: \"\" },\n  professionalSummary: \"\",\n  skillCategories: [],\n  experience: [],\n  education: [],\n  certifications: [],\n  projects: [],\n  additionalSections: []\n};\n\nconst results = [];\n\nfor (const item of $input.all()) {\n  let rawText = item.json.content?.[0]?.text\n             ?? item.json.output\n             ?? item.json.text\n             ?? item.json.data;\n\n  // If this item is already a normalized object (e.g. ran through the\n  // per-item Code node earlier), just use it directly instead of re-parsing.\n  if (!rawText && item.json.candidateName) {\n    results.push({ ...schema, ...item.json, contactInfo: { ...schema.contactInfo, ...(item.json.contactInfo || {}) } });\n    continue;\n  }\n\n  if (!rawText) {\n    throw new Error(\n      `Could not find Claude response text on item ${results.length}. ` +\n      `Check the field name — log item.json to inspect it.`\n    );\n  }\n\n  rawText = rawText.trim();\n  if (rawText.startsWith('```')) {\n    rawText = rawText.replace(/^```(?:json)?\\s*/i, '').replace(/```\\s*$/, '').trim();\n  }\n\n  let resume;\n  try {\n    resume = JSON.parse(rawText);\n  } catch (err) {\n    throw new Error(\n      `Failed to parse Claude's response as JSON for item ${results.length}. ` +\n      `Raw text: ${rawText.substring(0, 300)}...`\n    );\n  }\n\n  const normalized = { ...schema, ...resume };\n  normalized.contactInfo = { ...schema.contactInfo, ...(resume.contactInfo || {}) };\n\n  results.push(normalized);\n}\n\n// IMPORTANT: return ONE item whose json IS the array.\n// n8n wraps this as [{ json: [...] }] internally, but when your\n// Respond to Webhook node is set to return $json (or \"First Incoming Item\"),\n// it will output the array itself as the HTTP response body.\nreturn [{ json: { resumes: results } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        688
+      ],
+      "id": "bd6ef2b2-9723-4e41-800e-c60c729ddade",
+      "name": "Code in JavaScript9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------\n// Strip code fences the model sometimes adds anyway\n// ---------------------------------------------\nfunction cleanText(rawText) {\n  return rawText.trim()\n    .replace(/^```json\\s*/i, \"\")\n    .replace(/^```\\s*/i, \"\")\n    .replace(/```\\s*$/i, \"\");\n}\n\n// ---------------------------------------------\n// Best-effort repair for JSON truncated mid-string/mid-object.\n// This is only a safety net — the real fix is raising max_tokens\n// on the COVER LETTER node so truncation stops happening at the source.\n// ---------------------------------------------\nfunction attemptRepair(text) {\n  let repaired = text;\n\n  const quoteCount = (repaired.match(/(?<!\\\\)\"/g) || []).length;\n  if (quoteCount % 2 !== 0) {\n    repaired += '\"';\n  }\n\n  repaired = repaired.replace(/,\\s*$/, \"\");\n\n  const stack = [];\n  for (const ch of repaired) {\n    if (ch === \"{\" || ch === \"[\") stack.push(ch);\n    else if (ch === \"}\" || ch === \"]\") stack.pop();\n  }\n  while (stack.length) {\n    const open = stack.pop();\n    repaired += open === \"{\" ? \"}\" : \"]\";\n  }\n\n  return repaired;\n}\n\nfunction parseCoverLetterJson(rawTextRaw) {\n  const rawText = cleanText(rawTextRaw);\n  try {\n    return JSON.parse(rawText);\n  } catch (firstErr) {\n    try {\n      return JSON.parse(attemptRepair(rawText));\n    } catch (secondErr) {\n      throw new Error(\n        `Failed to parse cover letter JSON even after repair attempt: ${secondErr.message}. ` +\n        `The AI node's response was truncated (raw length: ${rawText.length} chars). ` +\n        `Fix: open the COVER LETTER node and increase its max_tokens setting to ` +\n        `2000-3000, then re-run.`\n      );\n    }\n  }\n}\n\n// ---------------------------------------------\n// Build the Google Docs batchUpdate \"requests\" array\n// for a single parsed cover letter object. Index/requests\n// are local to each call so items never bleed into each other.\n// ---------------------------------------------\nfunction buildRequestsForCoverLetter(data) {\n  let requests = [];\n  let index = 1;\n\n  function addText(text, options = {}) {\n    text = text || \"\";\n    const start = index;\n    requests.push({\n      insertText: {\n        location: { index },\n        text: text + \"\\n\"\n      }\n    });\n    index += text.length + 1;\n    if (text.length > 0 && (options.fontSize || options.bold || options.fontFamily)) {\n      requests.push({\n        updateTextStyle: {\n          range: {\n            startIndex: start,\n            endIndex: index - 1\n          },\n          textStyle: {\n            bold: options.bold || false,\n            weightedFontFamily: {\n              fontFamily: options.fontFamily || \"Times New Roman\"\n            },\n            fontSize: {\n              magnitude: options.fontSize || 11,\n              unit: \"PT\"\n            }\n          },\n          fields: \"bold,weightedFontFamily,fontSize\"\n        }\n      });\n    }\n    return start;\n  }\n\n  function addBlankLine() {\n    addText(\"\", { fontSize: 11 });\n  }\n\n  // ==========================\n  // SENDER HEADER (candidate name + contact)\n  // ==========================\n  addText(data.candidateName || \"\", {\n    bold: true,\n    fontSize: 16\n  });\n\n  const contact = data.candidateContact || {};\n  const contactLine = [contact.email, contact.phone, contact.location]\n    .filter(Boolean)\n    .join(\"   |   \");\n  addText(contactLine, { fontSize: 10 });\n\n  addBlankLine();\n\n  // ==========================\n  // DATE\n  // ==========================\n  if (data.date) {\n    addText(data.date, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  // ==========================\n  // RECIPIENT / ROLE REFERENCE\n  // ==========================\n  if (data.companyName) {\n    addText(data.companyName, { fontSize: 11 });\n  }\n  if (data.jobTitle) {\n    addText(`Re: Application for ${data.jobTitle}`, {\n      fontSize: 11,\n      bold: true\n    });\n  }\n\n  addBlankLine();\n\n  // ==========================\n  // SALUTATION\n  // ==========================\n  addText(data.salutation || \"Dear Hiring Manager,\", {\n    fontSize: 11\n  });\n\n  addBlankLine();\n\n  // ==========================\n  // BODY\n  // ==========================\n  if (data.openingParagraph) {\n    addText(data.openingParagraph, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  for (const para of data.bodyParagraphs || []) {\n    addText(para, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  if (data.closingParagraph) {\n    addText(data.closingParagraph, { fontSize: 11 });\n    addBlankLine();\n  }\n\n  // ==========================\n  // SIGN OFF\n  // ==========================\n  addText(data.signOff || \"Sincerely,\", { fontSize: 11 });\n  addBlankLine();\n  addText(data.candidateName || \"\", { fontSize: 11 });\n\n  return requests;\n}\n\n// ---------------------------------------------\n// MAIN — process every input item, not just the first\n// ---------------------------------------------\nconst allItems = $input.all();\nconst output = [];\n\nfor (let i = 0; i < allItems.length; i++) {\n  const item = allItems[i].json;\n\n  let rawText;\n  try {\n    rawText = item.content[0].text;\n  } catch (e) {\n    throw new Error(`Item ${i}: missing content[0].text in AI node output.`);\n  }\n\n  const data = parseCoverLetterJson(rawText);\n  const requests = buildRequestsForCoverLetter(data);\n\n  output.push({\n    json: {\n      requests,\n      candidateName: data.candidateName || \"\",\n      companyName: data.companyName || \"\"\n    }\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        1088
+      ],
+      "id": "22ee81ee-be8f-4aae-9ca5-eab658e333e8",
+      "name": "Code in JavaScript10"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        896
+      ],
+      "id": "b3125168-cacc-4ea3-a122-0527ac751f4f",
+      "name": "Code in JavaScript12"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst results = [];\n\nfor (const item of items) {\n\n\n\n  const resumes =\n    item.json.resumes ?? [];\n\n  const coverLetters =\n    item.json.coverLetter ??\n    item.json.CoverLetter ??\n    [];\n\n  const count = Math.max(\n    resumes.length,\n    coverLetters.length\n  );\n\n  for (let i = 0; i < count; i++) {\n\n    results.push({\n       companyName: coverLetters[i].companyName ?? \"\",\n\n      resume: resumes[i] ?? {},\n\n      coverLetter: coverLetters[i] ?? {}\n    });\n\n  }\n}\n\nreturn [\n  {\n    json: {\n      results\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        912
+      ],
+      "id": "1c3b5587-97fc-4048-b275-585dec197a64",
+      "name": "Code in JavaScript13"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1RVHC-B-wfc75QMGzL0KFbh9sshzzdTscQy4YuTVHHjk",
+          "mode": "list",
+          "cachedResultName": "Job Description",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RVHC-B-wfc75QMGzL0KFbh9sshzzdTscQy4YuTVHHjk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 215115002,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RVHC-B-wfc75QMGzL0KFbh9sshzzdTscQy4YuTVHHjk/edit#gid=215115002"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Job Post Link": "={{ $('LinkedIn Job').item.json.job_url }}",
+            "Job Title": "={{ $('LinkedIn Job').item.json.job_title }}",
+            "Posted At ": "={{ $('LinkedIn Job').item.json.time_posted }}",
+            "Application Link": "={{ $('LinkedIn Job').item.json.apply_url }}",
+            "Company Name": "={{ $('LinkedIn Job').item.json.company_name }}",
+            "Description": "={{ $('LinkedIn Job').item.json.job_description }}",
+            "Salary ": "={{ $('LinkedIn Job').item.json.salary_range }}",
+            "Status": "To-do",
+            "Company Website ": "={{ $('LinkedIn Job').item.json.company_url }}",
+            "Seniority Level": "={{ $('LinkedIn Job').item.json.seniority_level }}",
+            "resumeUrl": "={{ $json.resumeUrl }}",
+            "coverLetterUrl": "={{ $json.coverUrl }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Job Post Link",
+              "displayName": "Job Post Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Seniority Level",
+              "displayName": "Seniority Level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Posted At ",
+              "displayName": "Posted At ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Website ",
+              "displayName": "Company Website ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Salary ",
+              "displayName": "Salary ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicants",
+              "displayName": "Applicants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resumeUrl",
+              "displayName": "resumeUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Application Link",
+              "displayName": "Application Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "coverLetterUrl",
+              "displayName": "coverLetterUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        912
+      ],
+      "id": "336b1f8e-a987-48b6-b94e-0e3af208c614",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6yLsryrn9IjwLT5Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1584,
+        912
+      ],
+      "id": "800acc00-9f02-420c-b69b-c159b5ab7844",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "folderId": "=",
+        "title": "Resume"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        752,
+        688
+      ],
+      "id": "6150d291-da28-423a-a758-92a1f295ee5b",
+      "name": "Create a document5",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "lPMYoAFGgMYnXh9m",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "CoverLetter"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        560,
+        1088
+      ],
+      "id": "e28d22f7-130b-438e-9039-8f700c4a9d8f",
+      "name": "Create a document6",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "lPMYoAFGgMYnXh9m",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dbfff6b0-d848-48f3-8eb6-f37554d96278",
+              "name": "resumeUrl",
+              "value": "={{ 'https://docs.google.com/document/d/' + $('Create a document5').item.json.id + '/edit' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        688
+      ],
+      "id": "1a1fea2f-5c86-42cf-9440-6cdef70096dc",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f80ac636-c052-4fc9-aa1b-3155a72ff27d",
+              "name": "coverUrl",
+              "value": "={{ 'https://docs.google.com/document/d/' + $('Create a document6').item.json.id + '/edit' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        1088
+      ],
+      "id": "2e6982bb-a8fc-41c3-9e28-5a743ec159c6",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Create a document5').item.json.id }}:batchUpdate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ requests:$json.requests }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1136,
+        688
+      ],
+      "id": "81afea6b-c60f-4730-9cc7-d9398d3670ee",
+      "name": "HTTP Request4",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "TjX1p2C1iuLNXe25",
+          "name": "sammm"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Create a document6').item.json.id }}:batchUpdate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"requests\": {{ JSON.stringify($('Code in JavaScript10').item.json.requests) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        1088
+      ],
+      "id": "e4e42122-b7af-4135-82a8-5337ceb59ff2",
+      "name": "HTTP Request5",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "TjX1p2C1iuLNXe25",
+          "name": "sammm"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst resumeSourceItem = $('Code in JavaScript9').item;\nconst resumeData = resumeSourceItem.json.resumes\n  ? resumeSourceItem.json.resumes[0]\n  : resumeSourceItem.json;\n \nconst paragraphs = [];\n \n// ---- Brand colors / constants ----\nconst HEADING_COLOR = '1F4E79';\nconst WHITE = 'FFFFFF';\nconst BODY_FONT = 'Calibri';\nconst RIGHT_TAB = 468;\nconst SKILL_LABEL_TAB = 130;\n \nfunction addPara(runs, opts = {}) {\n  paragraphs.push({\n    style: opts.style || 'Normal',\n    alignment: opts.alignment || 'left',\n    border: opts.border || false,\n    borderColor: opts.borderColor || null,\n    shading: opts.shading || null,\n    tabStop: opts.tabStop || null,\n    tabAlign: opts.tabAlign || 'START',\n    spaceAfter: opts.spaceAfter || 0,\n    spaceBefore: opts.spaceBefore || 0,\n    keepWithNext: opts.keepWithNext || false,          // <-- NEW\n    keepLinesTogether: opts.keepLinesTogether !== false, // <-- NEW, default true\n    runs\n  });\n}\n \nfunction run(text, o = {}) {\n  return {\n    text: String(text ?? ''),\n    bold: o.bold || false,\n    italic: o.italic || false,\n    underline: o.underline || false,\n    font: o.font || BODY_FONT,\n    size: o.size || 11,\n    color: o.color || null,\n    link: o.link || null\n  };\n}\n \nfunction addBlank() {\n  addPara([run('')], { size: 6 });\n}\n \nfunction sectionHeader(title) {\n  addPara([run(title, { bold: true, size: 12, color: HEADING_COLOR })], {\n    border: true,\n    borderColor: HEADING_COLOR,\n    spaceAfter: 4\n  });\n}\n \n// Glue every paragraph from `startIndex` through the current last paragraph\n// together (except the very last one, which is left free to break onto the\n// next page if the block after it doesn't fit).\nfunction chainKeepTogether(startIndex) {\n  for (let i = startIndex; i < paragraphs.length - 1; i++) {\n    paragraphs[i].keepWithNext = true;\n  }\n}\n \n// ================= HEADER (blue banner) =================\naddPara([run('', { size: 4 })], { alignment: 'center', shading: HEADING_COLOR });\naddPara([run((resumeData.candidateName || '').toUpperCase(), {\n  bold: true, size: 20, color: WHITE\n})], { alignment: 'center', shading: HEADING_COLOR });\n \nconst c = resumeData.contactInfo || {};\nconst contactRuns = [];\nconst pieces = [];\nif (c.phone) pieces.push({ text: c.phone });\nif (c.email) pieces.push({ text: c.email });\nif (c.location) pieces.push({ text: c.location });\nif (c.linkedin) pieces.push({ text: 'LinkedIn', link: c.linkedin });\nif (c.website) pieces.push({ text: 'GitHub', link: c.website });\npieces.forEach((p, i) => {\n  if (i > 0) contactRuns.push(run('   |   ', { size: 10, color: WHITE }));\n  contactRuns.push(run(p.text, { size: 10, link: p.link || null, underline: !!p.link, color: WHITE }));\n});\naddPara(contactRuns, { alignment: 'center', shading: HEADING_COLOR });\naddPara([run('', { size: 4 })], { alignment: 'center', shading: HEADING_COLOR });\naddBlank();\n \n// ================= PROFESSIONAL SUMMARY =================\nif (resumeData.professionalSummary) {\n  const blockStart = paragraphs.length;\n  sectionHeader('PROFESSIONAL SUMMARY');\n  addPara([run(resumeData.professionalSummary, { size: 11 })]);\n  chainKeepTogether(blockStart);   // short section — keep heading + paragraph together\n  addBlank();\n}\n \n// ================= SKILLS =================\n// Replace the existing \"SKILLS\" block in Code node 8 with this version.\n// This removes the tab-stop approach (Google Docs API's batchUpdate does not\n// support setting custom tabStops, which caused the \"Unallowed field: tabStops\"\n// error) and instead matches the original resume's inline \"Label: items\" style,\n// which wraps naturally with no column-alignment issues.\n\nif (resumeData.skillCategories?.length) {\n  const blockStart = paragraphs.length;\n  sectionHeader('TECHNICAL SKILLS');\n  resumeData.skillCategories.forEach(cat => {\n    const label = cat.categoryName || cat.category || cat.name || '';\n    const items = (cat.items || cat.skills || []).join(', ');\n    addPara([\n      run(label + ': ', { bold: true, size: 11, color: HEADING_COLOR }),\n      run(items, { size: 11 })\n    ]);\n  });\n  chainKeepTogether(blockStart);   // short section — keep whole skills block together\n  addBlank();\n}\n \n// ================= EXPERIENCE =================\nif (resumeData.experience?.length) {\n  sectionHeader('PROFESSIONAL EXPERIENCE');   // heading only glued to the first job below\n  paragraphs[paragraphs.length - 1].keepWithNext = true;\n \n  resumeData.experience.forEach(exp => {\n    const entryStart = paragraphs.length;     // chain THIS job's title+bullets only\n    const titleLine = [exp.jobTitle, exp.employer].filter(Boolean).join('  —  ');\n    const dates = [exp.startDate, exp.endDate].filter(Boolean).join(' – ');\n    addPara([\n      run(titleLine + (exp.location ? `, ${exp.location}` : ''), { bold: true, size: 11.5 }),\n      run('\\t' + dates, { italic: true, size: 10.5 })\n    ], { tabStop: RIGHT_TAB, tabAlign: 'END' });\n    (exp.bullets || []).forEach(b => addPara([run('•  ' + b, { size: 11 })]));\n    chainKeepTogether(entryStart);\n    addBlank();\n  });\n}\n \n// ================= PROJECTS =================\nif (resumeData.projects?.length) {\n  sectionHeader('PROJECTS');\n  paragraphs[paragraphs.length - 1].keepWithNext = true;\n \n  resumeData.projects.forEach(p => {\n    const entryStart = paragraphs.length;\n    addPara([run(p.name || '', { bold: true, size: 11.5 })]);\n    if (p.description) {\n      addPara([\n        run('Tech Stack: ', { bold: true, italic: true, size: 10.5 }),\n        run(p.description, { italic: true, size: 10.5 })\n      ]);\n    }\n    (p.bullets || []).forEach(b => addPara([run('•  ' + b, { size: 11 })]));\n    chainKeepTogether(entryStart);\n    addBlank();\n  });\n}\n \n// ================= EDUCATION =================\nif (resumeData.education?.length) {\n  sectionHeader('EDUCATION');\n  paragraphs[paragraphs.length - 1].keepWithNext = true;\n \n  resumeData.education.forEach(ed => {\n    const entryStart = paragraphs.length;\n    const dates = [ed.startDate, ed.endDate].filter(Boolean).join(' – ');\n    addPara([\n      run(ed.degree || '', { bold: true, size: 11.5 }),\n      run('\\t' + dates, { italic: true, size: 10.5 })\n    ], { tabStop: RIGHT_TAB, tabAlign: 'END' });\n    const instLine = [ed.institution, ed.location].filter(Boolean).join('  |  ');\n    if (instLine) addPara([run(instLine, { size: 11 })]);\n    if (ed.details) addPara([run(ed.details, { size: 10.5 })]);\n    chainKeepTogether(entryStart);\n  });\n  addBlank();\n}\n \n// ================= CERTIFICATIONS =================\nif (resumeData.certifications?.length) {\n  const blockStart = paragraphs.length;\n  sectionHeader('CERTIFICATIONS');\n  resumeData.certifications.forEach(cert =>\n    addPara([run('•  ' + (typeof cert === 'string' ? cert : (cert.name || '')), { size: 11 })])\n  );\n  chainKeepTogether(blockStart);   // short flat list — keep entirely together\n  addBlank();\n}\n \n// ================= ADDITIONAL SECTIONS (Awards, Publications, Interests...) =================\n(resumeData.additionalSections || []).forEach(sec => {\n  const blockStart = paragraphs.length;\n  sectionHeader((sec.heading || '').toUpperCase());\n  (sec.items || []).forEach(i => addPara([run('•  ' + i, { size: 11 })]));\n  chainKeepTogether(blockStart);   // this is what fixes your AWARDS screenshot\n});\n \nreturn [{ json: { resumeTemplate: paragraphs, candidateName: resumeData.candidateName || '' } }];\n "
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        688
+      ],
+      "id": "ba52a96a-8dd0-43c2-a6bf-85597f533a62",
+      "name": "Code in JavaScript14"
+    },
+    {
+      "parameters": {
+        "jsCode": "const paragraphs = $('Code in JavaScript14').item.json.resumeTemplate;\n\nconst requests = [];\nlet currentIndex = 1;\n\nfunction decodeHtmlEntities(str = \"\") {\n  return str\n    .replace(/&amp;/g, \"&\").replace(/&lt;/g, \"<\").replace(/&gt;/g, \">\")\n    .replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, \" \");\n}\n\nfunction hexToRgb(hex) {\n  if (!hex) return null;\n  const clean = hex.replace(\"#\", \"\");\n  if (clean.length !== 6) return null;\n  const bigint = parseInt(clean, 16);\n  return {\n    red: ((bigint >> 16) & 255) / 255,\n    green: ((bigint >> 8) & 255) / 255,\n    blue: (bigint & 255) / 255,\n  };\n}\n\nfor (const para of paragraphs) {\n  if (!para.runs) continue;\n\n  para.runs.forEach(r => { r.text = decodeHtmlEntities(r.text || \"\"); });\n  const hasText = para.runs.some(r => r.text.trim().length);\n\n  let paragraphText = \"\";\n  const runRanges = [];\n  for (const run of para.runs) {\n    const start = currentIndex + paragraphText.length;\n    paragraphText += run.text || \"\";\n    const end = currentIndex + paragraphText.length;\n    runRanges.push({ run, start, end });\n  }\n  paragraphText += \"\\n\";\n\n  requests.push({\n    insertText: { location: { index: currentIndex }, text: paragraphText }\n  });\n\n  const paragraphStyle = {};\n  const paragraphFields = [\"namedStyleType\"];\n  paragraphStyle.namedStyleType = para.style === \"Heading1\" ? \"HEADING_1\" : \"NORMAL_TEXT\";\n\n  if (para.alignment) {\n    paragraphStyle.alignment =\n      para.alignment === \"center\" ? \"CENTER\" :\n      para.alignment === \"right\"  ? \"END\" : \"START\";\n    paragraphFields.push(\"alignment\");\n  }\n\n  if (typeof para.spaceAfter === \"number\") {\n    paragraphStyle.spaceBelow = { magnitude: para.spaceAfter, unit: \"PT\" };\n    paragraphFields.push(\"spaceBelow\");\n  }\n\n  if (typeof para.spaceBefore === \"number\" && para.spaceBefore > 0) {\n    paragraphStyle.spaceAbove = { magnitude: para.spaceBefore, unit: \"PT\" };\n    paragraphFields.push(\"spaceAbove\");\n  }\n\n  if (typeof para.lineSpacing === \"number\") {\n    paragraphStyle.lineSpacing = para.lineSpacing;\n    paragraphFields.push(\"lineSpacing\");\n  }\n\n  if (typeof para.indentStart === \"number\") {\n    paragraphStyle.indentStart = { magnitude: para.indentStart, unit: \"PT\" };\n    paragraphFields.push(\"indentStart\");\n  }\n\n  if (typeof para.indentEnd === \"number\") {\n    paragraphStyle.indentEnd = { magnitude: para.indentEnd, unit: \"PT\" };\n    paragraphFields.push(\"indentEnd\");\n  }\n\n  if (typeof para.firstLineIndent === \"number\") {\n    paragraphStyle.indentFirstLine = { magnitude: para.firstLineIndent, unit: \"PT\" };\n    paragraphFields.push(\"indentFirstLine\");\n  }\n\n  if (para.border) {\n    paragraphStyle.borderBottom = {\n      color: { color: { rgbColor: hexToRgb(para.borderColor || \"#1F4E79\") } },\n      width: { magnitude: 1, unit: \"PT\" },\n      padding: { magnitude: 2, unit: \"PT\" },\n      dashStyle: \"SOLID\"\n    };\n    paragraphFields.push(\"borderBottom\");\n  }\n\n  if (para.shading) {\n    paragraphStyle.shading = { backgroundColor: { color: { rgbColor: hexToRgb(para.shading) } } };\n    paragraphFields.push(\"shading\");\n  }\n\n  // NOTE: tabStops is not a settable field via updateParagraphStyle in the\n  // Google Docs API batchUpdate (it errors with \"Unallowed field: tabStops\"),\n  // so custom tab stop positions can't be set this way. Left out intentionally.\n\n  // Keep this heading/bullet glued to the paragraph right after it\n  if (para.keepWithNext) {\n    paragraphStyle.keepWithNext = true;\n    paragraphFields.push(\"keepWithNext\");\n  }\n\n  // Never split this single paragraph's own text across a page break\n  if (para.keepLinesTogether) {\n    paragraphStyle.keepLinesTogether = true;\n    paragraphFields.push(\"keepLinesTogether\");\n  }\n\n  requests.push({\n    updateParagraphStyle: {\n      range: { startIndex: currentIndex, endIndex: currentIndex + paragraphText.length },\n      paragraphStyle,\n      fields: paragraphFields.join(\",\")\n    }\n  });\n\n  if (hasText) {\n    for (const { run, start, end } of runRanges) {\n      if (start >= end) continue;\n      const textStyle = {};\n      const textFields = [];\n      if (run.bold) { textStyle.bold = true; textFields.push(\"bold\"); }\n      if (run.italic) { textStyle.italic = true; textFields.push(\"italic\"); }\n      if (run.underline) { textStyle.underline = true; textFields.push(\"underline\"); }\n      if (run.font) { textStyle.weightedFontFamily = { fontFamily: run.font }; textFields.push(\"weightedFontFamily\"); }\n      if (run.size) { textStyle.fontSize = { magnitude: run.size, unit: \"PT\" }; textFields.push(\"fontSize\"); }\n      if (run.color) {\n        const rgb = hexToRgb(run.color);\n        if (rgb) { textStyle.foregroundColor = { color: { rgbColor: rgb } }; textFields.push(\"foregroundColor\"); }\n      }\n      if (run.link) { textStyle.link = { url: run.link }; textFields.push(\"link\"); }\n      if (textFields.length) {\n        requests.push({\n          updateTextStyle: { range: { startIndex: start, endIndex: end }, textStyle, fields: textFields.join(\",\") }\n        });\n      }\n    }\n  }\n\n  currentIndex += paragraphText.length;\n}\n\nreturn [{ json: { requests } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        688
+      ],
+      "id": "bbb455b5-27ed-41dd-9376-1b79e94b296f",
+      "name": "Code in JavaScript15"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Job Search URL": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Job Search URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Job Search URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Indeed Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Job": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indeed Job": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RESUME": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "COVER LETTER": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Create a document4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "COVER LETTER",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RESUME",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compression1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Compression1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript8": {
+      "main": [
+        [
+          {
+            "node": "Create a document3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript11": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RESUME1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "COVER LETTER1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript9": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript10": {
+      "main": [
+        [
+          {
+            "node": "Create a document6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript12": {
+      "main": [
+        [
+          {
+            "node": "COVER LETTER1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RESUME1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript13": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document6": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript14": {
+      "main": [
+        [
+          {
+            "node": "Create a document5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript15": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "729bb4dc-c85e-44de-b85d-3cc6906e0a6e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c0a8cca7777978a382e9a5b657bbdc9e2a2c863b2ce5e601affc68673a264c76"
+  },
+  "nodeGroups": [],
+  "id": "R3IwLg74FPZCzxNQ",
+  "tags": []
+}

@@ -1,0 +1,125 @@
+:root {
+  --ink: #1c2430;
+  --ink-soft: #4b5563;
+  --paper: #f6f5f2;
+  --panel: #ffffff;
+  --line: #dfdcd4;
+  --accent: #1f4e79;
+  --err: #b3261e;
+  --err-bg: #fbebea;
+  --ok: #1e7d4a;
+  --ok-bg: #eaf6ef;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Georgia', 'Iowan Old Style', serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.auth-wrap {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+
+.eyebrow {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+h1 { font-size: 26px; margin: 0 0 20px; font-weight: 700; }
+
+.lede {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: -10px 0 20px;
+}
+
+form {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.field { margin-bottom: 16px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.field label {
+  display: block;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.hint {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 6px 0 0;
+}
+
+button.submit {
+  width: 100%;
+  padding: 12px 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.submit:hover { background: #17395c; }
+button.submit:disabled { background: #9fb3c4; cursor: not-allowed; }
+
+.form-msg {
+  margin-top: 14px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  min-height: 1em;
+}
+
+.form-msg.error { color: var(--err); }
+.form-msg.success { color: var(--ok); }
+
+.switch {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 20px;
+}
+
+.switch a { color: var(--accent); text-decoration: underline; }
